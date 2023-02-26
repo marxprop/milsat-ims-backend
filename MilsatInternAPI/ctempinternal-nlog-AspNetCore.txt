@@ -1,0 +1,42 @@
+2022-09-18 19:15:43.6393 Info Message Template Auto Format enabled
+2022-09-18 19:15:43.6623 Info Loading assembly: NLog.Web.AspNetCore
+2022-09-18 19:15:43.7380 Info Adding target FileTarget(Name=allfile)
+2022-09-18 19:15:43.7380 Info Adding target FileTarget(Name=ownFile-web)
+2022-09-18 19:15:43.7607 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'lifetimeConsole' not found for logging rule: Microsoft.Hosting.Lifetime.
+2022-09-18 19:15:43.7887 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-18 19:15:44.3798 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-18 19:42:07.7624 Info Message Template Auto Format enabled
+2022-09-18 19:42:07.7779 Info Loading assembly: NLog.Web.AspNetCore
+2022-09-18 19:42:07.8449 Info Adding target FileTarget(Name=allfile)
+2022-09-18 19:42:07.8449 Info Adding target FileTarget(Name=ownFile-web)
+2022-09-18 19:42:07.8682 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'lifetimeConsole' not found for logging rule: Microsoft.Hosting.Lifetime.
+2022-09-18 19:42:07.8989 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-18 19:42:08.3358 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-18 20:16:44.2059 Info Message Template Auto Format enabled
+2022-09-18 20:16:44.2238 Info Loading assembly: NLog.Web.AspNetCore
+2022-09-18 20:16:44.2920 Info Adding target FileTarget(Name=allfile)
+2022-09-18 20:16:44.2979 Info Adding target FileTarget(Name=ownFile-web)
+2022-09-18 20:16:44.3170 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'lifetimeConsole' not found for logging rule: Microsoft.Hosting.Lifetime.
+2022-09-18 20:16:44.3433 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-18 20:16:44.8824 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-26 18:39:52.9349 Info Message Template Auto Format enabled
+2022-09-26 18:39:52.9600 Info Loading assembly: NLog.Web.AspNetCore
+2022-09-26 18:39:53.0285 Info Adding target FileTarget(Name=allfile)
+2022-09-26 18:39:53.0338 Info Adding target FileTarget(Name=ownFile-web)
+2022-09-26 18:39:53.0526 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'lifetimeConsole' not found for logging rule: Microsoft.Hosting.Lifetime.
+2022-09-26 18:39:53.0778 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-26 18:39:53.8286 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-26 19:03:04.7326 Info Message Template Auto Format enabled
+2022-09-26 19:03:04.7516 Info Loading assembly: NLog.Web.AspNetCore
+2022-09-26 19:03:04.8249 Info Adding target FileTarget(Name=allfile)
+2022-09-26 19:03:04.8305 Info Adding target FileTarget(Name=ownFile-web)
+2022-09-26 19:03:04.8518 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'lifetimeConsole' not found for logging rule: Microsoft.Hosting.Lifetime.
+2022-09-26 19:03:04.8860 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-26 19:03:05.4711 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-26 19:19:54.5281 Info Message Template Auto Format enabled
+2022-09-26 19:19:54.5460 Info Loading assembly: NLog.Web.AspNetCore
+2022-09-26 19:19:54.6127 Info Adding target FileTarget(Name=allfile)
+2022-09-26 19:19:54.6127 Info Adding target FileTarget(Name=ownFile-web)
+2022-09-26 19:19:54.6382 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Target 'lifetimeConsole' not found for logging rule: Microsoft.Hosting.Lifetime.
+2022-09-26 19:19:54.6686 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
+2022-09-26 19:19:55.2557 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=53, FilePath=/app/bin/Debug/net6.0/NLog.config
