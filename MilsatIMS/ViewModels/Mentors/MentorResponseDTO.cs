@@ -1,5 +1,6 @@
 ﻿using MilsatIMS.Enums;
 using MilsatIMS.Models;
+using MilsatIMS.ViewModels.Interns;
 
 namespace MilsatIMS.ViewModels.Mentors
 {
@@ -13,9 +14,7 @@ namespace MilsatIMS.ViewModels.Mentors
         public string Bio { get; set; }
         public string ProfilePicture { get; set; }
         public TeamType Team { get; set; }
-        //public MentorStatus Status { get; set; }
-
-        public List<Guid>? InternUserIDs { get; set; }
+        public List<InternMiniDTO> Interns { get; set; }
     }
 }
 

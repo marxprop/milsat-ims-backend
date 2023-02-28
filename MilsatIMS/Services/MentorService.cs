@@ -4,6 +4,7 @@ using MilsatIMS.Enums;
 using MilsatIMS.Interfaces;
 using MilsatIMS.Models;
 using MilsatIMS.ViewModels;
+using MilsatIMS.ViewModels.Interns;
 using MilsatIMS.ViewModels.Mentors;
 using Newtonsoft.Json;
 using System.Security.Claims;
@@ -85,7 +86,7 @@ namespace MilsatIMS.Services
             _logger.LogInformation($"Received a request to fetch all mentors with : Pagination - (pageNumber):{pageNumber}, (pageSize):{pageSize}");
             try
             {
-                var pagedData = await _userRepo.GetAll().Include(x => x.Mentor).ThenInclude(x => x.Interns)
+                var pagedData = await _userRepo.GetAll().Include(x => x.Mentor).ThenInclude(x => x.Interns).ThenInclude(x => x.User)
                                                       .Where(x => x.Role == RoleType.Mentor)
                                                       .Skip((pageNumber - 1) * pageSize)
                                                       .Take(pageSize).ToListAsync();
@@ -114,7 +115,7 @@ namespace MilsatIMS.Services
             try
             {
                 var user = await _userRepo.GetAll()
-                   .Include(x => x.Mentor).ThenInclude(x => x.Interns)
+                   .Include(x => x.Mentor).ThenInclude(x => x.Interns).ThenInclude(x => x.User)
                    .Where(x => x.UserId == id).SingleOrDefaultAsync();
 
                 if (user == null)
@@ -148,7 +149,7 @@ namespace MilsatIMS.Services
             try
             {
                 _logger.LogInformation($"Received a request to Fetch Intern(s): Request:{JsonConvert.SerializeObject(vm)}");
-                var filtered = await _userRepo.GetAll().Include(e => e.Mentor).ThenInclude(e => e.Interns)
+                var filtered = await _userRepo.GetAll().Include(e => e.Mentor).ThenInclude(e => e.Interns).ThenInclude(e => e.User)
                                                      .Where(x => x.Role == RoleType.Mentor &&
                                                             (vm.name == null || x.FullName.Contains(vm.name)
                                                             && vm.Team == null || x.Team == vm.Team))
@@ -178,7 +179,9 @@ namespace MilsatIMS.Services
             try
             {
                 var mentor = await _userRepo.GetAll()
-                    .Include(x => x.Mentor).ThenInclude(x => x.Interns)
+                    .Include(x => x.Mentor)
+                        .ThenInclude(x => x.Interns)
+                            .ThenInclude(x => x.User)
                     .Where(x => x.UserId == vm.MentorId)
                     .FirstOrDefaultAsync();
 
@@ -237,7 +240,7 @@ namespace MilsatIMS.Services
                     Gender = mentor.User.Gender,
                     Bio = mentor.User.Bio,
                     ProfilePicture = profilePicture,
-                    InternUserIDs = interns
+                    Interns = interns
                 });
             };
             return mentors;
@@ -259,18 +262,19 @@ namespace MilsatIMS.Services
                     Gender = mentor.Gender,
                     Bio = mentor.Bio,
                     ProfilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], mentor.ProfilePicture),
-                    InternUserIDs = interns
+                    Interns = interns
                 });
             };
             return mentors;
         }
 
-        public static List<Guid> AssignedIntern(List<Intern> interns)
+        public static List<InternMiniDTO> AssignedIntern(List<Intern> interns)
         {
-            List<Guid> internIDs = new();
+            List<InternMiniDTO> internIDs = new();
             foreach (var intern in interns)
             {
-                internIDs.Add(intern.UserId );
+                    var _intern = new InternMiniDTO { UserId = intern.UserId, FullName = intern.User.FullName };
+                internIDs.Add(_intern );
             }
             return internIDs;
         }
