@@ -30,5 +30,20 @@ namespace MilsatIMS.Controllers
             }
             return Ok(result);
         }
+
+        /// <summary>
+        /// Get the number of interns in each team
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("teams-count")]
+        public async Task<ActionResult<GetTeamTotalDTO>> GetTeamTotal()
+        {
+            var result = await _statsService.GetTeamTotal();
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }

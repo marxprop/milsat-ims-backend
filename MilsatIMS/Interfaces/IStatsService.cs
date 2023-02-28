@@ -6,5 +6,7 @@ namespace MilsatIMS.Interfaces
     public interface IStatsService
     {
         Task<GenericResponse<GetTotalUsersDTO>> GetTotalUsers();
+
+        Task<GenericResponse<GetTeamTotalDTO>> GetTeamTotal();
     }
 }

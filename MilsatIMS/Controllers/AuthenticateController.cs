@@ -40,7 +40,7 @@ namespace MilsatIMS.Controllers
         /// Refresh a user's login token
         /// </summary>
         /// <returns></returns>
-        [HttpPost("refresh_token")]
+        [HttpPost("refresh-token")]
         public async Task<ActionResult<string>> RefreshToken()
         {
             var response = await _authService.RefreshToken();
@@ -57,7 +57,7 @@ namespace MilsatIMS.Controllers
         /// </summary>
         /// <param name="vm"></param>
         /// <returns></returns>
-        [HttpPost("forgot_password"), AllowAnonymous]
+        [HttpPost("forgot-password"), AllowAnonymous]
         public async Task<ActionResult<ForgotPasswordResponse>> ForgotPassword(ForgetPasswordVm vm)
         {
             var response = await _authService.ForgotPassword(vm);
@@ -74,7 +74,7 @@ namespace MilsatIMS.Controllers
         /// </summary>
         /// <param name="vm"></param>
         /// <returns></returns>
-        [HttpPost("reset_password"), AllowAnonymous]
+        [HttpPost("reset-password"), AllowAnonymous]
         public async Task<ActionResult<ForgotPasswordResponse>> ResetPassword(ResetPasswordVm vm)
         {
             var response = await _authService.ResetPassword(vm);

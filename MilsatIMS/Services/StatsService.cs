@@ -3,6 +3,7 @@ using MilsatIMS.ViewModels.Stats;
 using MilsatIMS.ViewModels;
 using MilsatIMS.Models;
 using MilsatIMS.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace MilsatIMS.Services
 {
@@ -14,6 +15,42 @@ namespace MilsatIMS.Services
         {
             _logger = logger;
             _userRepo = userRepo;
+        }
+
+        public async Task<GenericResponse<GetTeamTotalDTO>> GetTeamTotal()
+        {
+            _logger.LogInformation($"Received request to fetch total number of interns in each team");
+            try
+            {
+                var interns = await _userRepo.GetAll().Where(u => u.Role == RoleType.Intern).ToListAsync();
+                var teamCounts = interns.GroupBy(u => u.Team)
+                                        .Select(g => new { Team = g.Key, Count = g.Count() });
+
+                var data = new GetTeamTotalDTO
+                {
+                    Backend = teamCounts.FirstOrDefault(tc => tc.Team == TeamType.Backend)?.Count ?? 0,
+                    Branding = teamCounts.FirstOrDefault(tc => tc.Team == TeamType.Branding)?.Count ?? 0,
+                    Community = teamCounts.FirstOrDefault(tc => tc.Team == TeamType.Community)?.Count ?? 0,
+                    Frontend = teamCounts.FirstOrDefault(tc => tc.Team == TeamType.Frontend)?.Count ?? 0,
+                    Mobile = teamCounts.FirstOrDefault(tc => tc.Team == TeamType.Mobile)?.Count ?? 0,
+                    UIUX = teamCounts.FirstOrDefault(tc => tc.Team == TeamType.UIUX)?.Count ?? 0,
+                };
+                return new GenericResponse<GetTeamTotalDTO>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Data = data
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while fetching total number of interns in each team. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<GetTeamTotalDTO>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR
+                };
+            }
         }
 
         public async Task<GenericResponse<GetTotalUsersDTO>> GetTotalUsers()
