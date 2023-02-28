@@ -40,11 +40,17 @@ namespace MilsatIMS.Repositories
             return GetAllIncluding();
         }
 
-        public async Task<List<T>> GetAllTable()
+        public async Task<List<T>> GetTableByOrder(Expression<Func<T, object>> orderBy = null)
         {
-            return await _dbContext.Set<T>().ToListAsync();
+            IQueryable<T> query = _dbContext.Set<T>();
+            if (orderBy != null)
+            {
+                query = query.OrderByDescending(orderBy);
+            }
+            return await query.ToListAsync();
         }
-        public async Task<T> GetByIdAsync(Guid id)
+
+        public async Task<T> GetByIdAsync(Guid id)  
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }

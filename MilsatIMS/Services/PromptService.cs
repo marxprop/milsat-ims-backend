@@ -55,13 +55,13 @@ namespace MilsatIMS.Services
             _logger.LogInformation($"Received request to get all live prompt");
             try
             {
-                var live_prompts = await _promptRepo.GetAllTable();
+                var live_prompts = await _promptRepo.GetTableByOrder(p => p.PublishDate);
                 var prompts_dto = new List<PromptDTO>();
                 foreach (var prompt in live_prompts) {
                     var iprompt = new PromptDTO {
                         PromptId=prompt.PromptId,
                         Info = prompt.Info,
-                        PublishDate = prompt.PublishDate.ToString("dd-MMMM-yyyy")
+                        PublishDate = prompt.PublishDate.ToString("dd-MMMM-yy")
                     };
                     prompts_dto.Add(iprompt);
                 }
