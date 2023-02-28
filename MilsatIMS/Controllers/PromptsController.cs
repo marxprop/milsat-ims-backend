@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilsatIMS.Interfaces;
+using MilsatIMS.ViewModels;
+using MilsatIMS.ViewModels.Prompts;
 
 namespace MilsatIMS.Controllers
 {
@@ -8,18 +10,25 @@ namespace MilsatIMS.Controllers
     [ApiController]
     public class PromptsController : ControllerBase
     {
-        public PromptsController()
+        private readonly IPromptService _promptService;
+        public PromptsController(IPromptService promptService)
         {
+            _promptService = promptService;
         }
 
         /// <summary>
-        /// Get all live prompts
+        /// Get the list of all live prompts
         /// </summary>
         /// <returns></returns>
         [HttpGet()]
-        public async Task<ActionResult> GetPrompts()
+        public async Task<ActionResult<GenericResponse<List<PromptDTO>>>> GetPrompts()
         {
-            return Ok();
+            var result = await _promptService.GetPrompts();
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         /// <summary>
@@ -27,19 +36,29 @@ namespace MilsatIMS.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("add")]
-        public async Task<ActionResult> AddPrompt()
+        public async Task<ActionResult<GenericResponse<PromptDTO>>> AddPrompt(PromptVm prompt)
         {
-            return Ok();
+            var result = await _promptService.AddPrompt(prompt);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         /// <summary>
         /// Delete a live prompt
         /// </summary>
         /// <returns></returns>
-        [HttpPost("delete")]
-        public async Task<ActionResult> DeletePrompt()
+        [HttpPost("delete/{id}")]
+        public async Task<ActionResult<GenericResponse<PromptDTO>>> DeletePrompt(Guid id)
         {
-            return Ok();
+            var result = await _promptService.DeletePrompt(id);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 

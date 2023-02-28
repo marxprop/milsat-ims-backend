@@ -67,6 +67,8 @@ try
     builder.Services.AddScoped<IMentorService, MentorService>();
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IStatsService, StatsService>();
+    builder.Services.AddScoped<IPromptService, PromptService>();
+    builder.Services.AddScoped<IActivityService, ActivityService>();
 
     builder.Services.AddCors(options => options.AddPolicy(name: "NgOrigins",
         policy =>

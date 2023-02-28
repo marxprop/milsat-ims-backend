@@ -40,6 +40,10 @@ namespace MilsatIMS.Repositories
             return GetAllIncluding();
         }
 
+        public async Task<List<T>> GetAllTable()
+        {
+            return await _dbContext.Set<T>().ToListAsync();
+        }
         public async Task<T> GetByIdAsync(Guid id)
         {
             return await _dbContext.Set<T>().FindAsync(id);

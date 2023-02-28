@@ -6,6 +6,7 @@ namespace MilsatIMS.Interfaces
     {
         Task<T> AddAsync(T entity);
         Task<List<T>> AddRangeAsync(List<T> entities);
+        Task<List<T>> GetAllTable();
         Task<T> UpdateAsync(T entity, T entityFromDatabase = null, bool saveChanges = true);
         Task UpdateRangeAsync(IEnumerable<T> entities);
         Task DeleteAsync(T entity);

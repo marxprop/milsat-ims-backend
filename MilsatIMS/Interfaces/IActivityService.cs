@@ -1,6 +1,6 @@
 ﻿namespace MilsatIMS.Interfaces
 {
-    public interface IActivity
+    public interface IActivityService
     {
     }
 }
