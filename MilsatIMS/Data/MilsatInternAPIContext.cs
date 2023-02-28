@@ -20,6 +20,7 @@ namespace MilsatIMS.Data
         public DbSet<User> Users { get; set; } = default!;
         public DbSet<Intern> Intern { get; set; }
         public DbSet<Mentor> Mentor { get; set; }
+        public DbSet<Prompt> Prompt { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().HasQueryFilter(b => !b.isDeleted);
