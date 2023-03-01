@@ -21,7 +21,7 @@ namespace MilsatIMS.Controllers
         }
 
         /// <summary>
-        /// Login a user
+        /// Authenticate a user
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
