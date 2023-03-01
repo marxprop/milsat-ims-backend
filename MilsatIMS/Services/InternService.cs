@@ -7,6 +7,7 @@ using MilsatIMS.Interfaces;
 using MilsatIMS.Models;
 using MilsatIMS.ViewModels;
 using MilsatIMS.ViewModels.Interns;
+using MilsatIMS.ViewModels.Mentors;
 using Newtonsoft.Json;
 
 namespace MilsatIMS.Services
@@ -31,7 +32,7 @@ namespace MilsatIMS.Services
             _iconfig = iconfig;
         }
 
-        public async Task<GenericResponse<List<InternResponseDTO>>> AddIntern(CreateInternDTO request)
+        public async Task<GenericResponse<InternResponseDTO>> AddIntern(CreateInternDTO request)
         {
             _logger.LogInformation($"Received a request to add new Intern(s): Request:{JsonConvert.SerializeObject(request)}");
             try
@@ -39,7 +40,7 @@ namespace MilsatIMS.Services
                 var user = await _userRepo.GetAll().Where(x => x.Email == request.Email).FirstOrDefaultAsync();
                 if (user != null)
                 {
-                    return new GenericResponse<List<InternResponseDTO>>
+                    return new GenericResponse<InternResponseDTO>
                     {
                         Successful = false,
                         ResponseCode = ResponseCode.INVALID_REQUEST,
@@ -61,28 +62,20 @@ namespace MilsatIMS.Services
                     Institution = request.Institution,
                 };
 
-                var selectedMentorId = await SelectMentor(newUser.Team);
-                //var selectedMentor = await _mentorRepo.GetAll().Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == request.MentorId);
-                //if (selectedMentor == null || selectedMentor.User.Team != newUser.Team)
-                //{
-                //    return new GenericResponse<List<InternResponseDTO>>
-                //    {
-                //        Successful = false,
-                //        ResponseCode = ResponseCode.NotFound,
-                //        Message = "Mentor Id Not Found"
-                //    };
-                //}
-                if (selectedMentorId != null)
+                var selectedMentor = await SelectMentor(newUser.Team);
+
+                if (selectedMentor != null)
                 {
-                    newIntern.MentorId = selectedMentorId;
+                    newIntern.MentorId = selectedMentor.UserId;
                 }
                 await _userRepo.AddAsync(newUser);
                 newIntern.UserId = newUser.UserId;
                 await _internRepo.AddAsync(newIntern);
 
+                
                 //Crete response body
-                var newInterns = InternResponseData(new List<User> { newUser });
-                return new GenericResponse<List<InternResponseDTO>>
+                var newInterns = InternResponseData( newUser , selectedMentor);
+                return new GenericResponse<InternResponseDTO>
                 {
                     Successful = true,
                     ResponseCode = ResponseCode.Successful,
@@ -92,7 +85,7 @@ namespace MilsatIMS.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-                return new GenericResponse<List<InternResponseDTO>>
+                return new GenericResponse<InternResponseDTO>
                 { 
                     Successful = false,
                     ResponseCode = ResponseCode.EXCEPTION_ERROR
@@ -100,16 +93,16 @@ namespace MilsatIMS.Services
             }
         }
 
-        public async Task<Guid?> SelectMentor(TeamType Team)
+        public async Task<Mentor?> SelectMentor(TeamType Team)
         {
-            var availableMentors = await _mentorRepo.GetAll().Where(x => x.User.Team == Team).ToListAsync();
+            var availableMentors = await _mentorRepo.GetAll().Include(x => x.User).Where(x => x.User.Team == Team).ToListAsync();
             int totalAvailableMentors = availableMentors.Count();
             if (totalAvailableMentors > 0)
             {
                 Random random = new Random();
                 var mentor_idx = random.Next(totalAvailableMentors);
                 var mentor = availableMentors[mentor_idx];
-                return mentor.UserId;
+                return mentor;
             }
             return null;
         }
@@ -120,7 +113,7 @@ namespace MilsatIMS.Services
             try
             {
                 var pagedData = await _userRepo.GetAll()
-                    .Include(x => x.Intern)
+                    .Include(x => x.Intern).ThenInclude(x => x.Mentor.User)
                     .Where(x => x.Role == RoleType.Intern)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
@@ -151,7 +144,7 @@ namespace MilsatIMS.Services
             try
             {
                 var user = await _userRepo.GetAll()
-                    .Include(x => x.Intern)
+                    .Include(x => x.Intern).ThenInclude(x => x.Mentor.User)
                     .Where(x => x.UserId == id).SingleOrDefaultAsync();
                 if (user == null)
                 {
@@ -185,7 +178,7 @@ namespace MilsatIMS.Services
             _logger.LogInformation($"Received a request to Fetch Intern(s): Request:{JsonConvert.SerializeObject(vm)}");
             try
             {
-                var filtered = await _userRepo.GetAll().Include(e => e.Intern)
+                var filtered = await _userRepo.GetAll().Include(e => e.Intern).ThenInclude(e => e.Mentor.User)
                                                  .Where(x => x.Role == RoleType.Intern &&
                                                         (vm.name == null || x.FullName.Contains(vm.name)
                                                         && vm.Team == null || x.Team == vm.Team))
@@ -210,7 +203,7 @@ namespace MilsatIMS.Services
         }
 
 
-        public async Task<GenericResponse<List<InternResponseDTO>>> UpdateIntern(UpdateInternVm vm)
+        public async Task<GenericResponse<InternResponseDTO>> UpdateIntern(UpdateInternVm vm)
         {
             _logger.LogInformation($"Received a request to update Intern: Request:{JsonConvert.SerializeObject(vm)}");
             try
@@ -222,7 +215,7 @@ namespace MilsatIMS.Services
 
                 if (user == null)
                 {
-                    return new GenericResponse<List<InternResponseDTO>>
+                    return new GenericResponse<InternResponseDTO>
                     {
                         Successful = false,
                         ResponseCode = ResponseCode.NotFound
@@ -242,32 +235,42 @@ namespace MilsatIMS.Services
                                                                         .FirstOrDefaultAsync();
                     if (selectedMentor == null)
                     {
-                        return new GenericResponse<List<InternResponseDTO>>
+                        return new GenericResponse<InternResponseDTO>
                         {
                             Successful = false,
                             ResponseCode = ResponseCode.NotFound,
                             Message = "No Mentor with this Id was found"
                         };
                     }
+
                     user.Intern.MentorId = selectedMentor.UserId;
+                    await _userRepo.UpdateAsync(user);
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = true,
+                        ResponseCode = ResponseCode.Successful,
+                        Data = InternResponseData(user, selectedMentor)
+                    };
                 }
                 else
                 {
+                    Mentor? selectedMentor = null;
                     user.Intern.MentorId = null;
+                    await _userRepo.UpdateAsync(user);
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = true,
+                        ResponseCode = ResponseCode.Successful,
+                        Data = InternResponseData(user, selectedMentor)
+                    };
                 }
 
-                await _userRepo.UpdateAsync(user);
-                return new GenericResponse<List<InternResponseDTO>>
-                {
-                    Successful = true,
-                    ResponseCode = ResponseCode.Successful,
-                    Data = InternResponseData(new List<User> { user })
-                };
+                
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error occured while updating intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-                return new GenericResponse<List<InternResponseDTO>>
+                return new GenericResponse<InternResponseDTO>
                 {
                     Successful = false,
                     ResponseCode = ResponseCode.EXCEPTION_ERROR
@@ -280,6 +283,8 @@ namespace MilsatIMS.Services
             List<InternResponseDTO> interns = new();
             foreach (var user in source)
             {
+                var attachedMentor = new MentorMiniDTO { MentorId = user.Intern.MentorId, FullName = user.Intern.Mentor?.User?.FullName };
+
                 string profilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], user.ProfilePicture);
                 interns.Add(new InternResponseDTO
                 {
@@ -294,10 +299,72 @@ namespace MilsatIMS.Services
                     Year = user.Intern.Year,
                     Bio = user.Bio,
                     ProfilePicture = profilePicture, 
-                    MentorUserId = user.Intern.MentorId,
+                    Mentor = attachedMentor,
                 });
             };
             return interns;
+        }
+
+        public InternResponseDTO InternResponseData(User user, Mentor? mentor)
+        {
+            var attachedMentor = new MentorMiniDTO { };
+            if (mentor != null)
+            {
+                attachedMentor.MentorId = mentor.UserId;
+                attachedMentor.FullName = mentor.User.FullName;
+            }
+            else
+            {
+                attachedMentor = null;
+            }
+            string profilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], user.ProfilePicture);
+            var intern = new InternResponseDTO
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Team = user.Team,
+                CourseOfStudy = user.Intern.CourseOfStudy,
+                Institution = user.Intern.Institution,
+                Gender = user.Gender,
+                Year = user.Intern.Year,
+                Bio = user.Bio,
+                ProfilePicture = profilePicture,
+                Mentor = attachedMentor,
+            };
+            return intern;
+        }
+
+        public InternResponseDTO InternResponseData(User user, User mentor)
+        {
+            var attachedMentor = new MentorMiniDTO { };
+            if (mentor != null)
+            {
+                attachedMentor.MentorId = mentor.UserId;
+                attachedMentor.FullName = mentor.FullName;
+            }
+            else
+            {
+                attachedMentor = null;
+            }
+            string profilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], user.ProfilePicture);
+            var intern = new InternResponseDTO
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Team = user.Team,
+                CourseOfStudy = user.Intern.CourseOfStudy,
+                Institution = user.Intern.Institution,
+                Gender = user.Gender,
+                Year = user.Intern.Year,
+                Bio = user.Bio,
+                ProfilePicture = profilePicture,
+                Mentor = attachedMentor,
+            };
+            return intern;
         }
     }
 

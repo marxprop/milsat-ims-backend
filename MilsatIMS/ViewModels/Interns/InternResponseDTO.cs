@@ -1,4 +1,5 @@
 ﻿using MilsatIMS.Enums;
+using MilsatIMS.ViewModels.Mentors;
 
 namespace MilsatIMS.ViewModels.Interns
 {
@@ -12,7 +13,7 @@ namespace MilsatIMS.ViewModels.Interns
         public string CourseOfStudy { get; set; }
         public string Institution { get; set; }
         public GenderType Gender { get; set; }
-        public Guid? MentorUserId { get; set; } 
+        public MentorMiniDTO? Mentor { get; set; } 
         public int Year { get; set; }
         public string Bio { get; set; }
         public string ProfilePicture { get; set; }

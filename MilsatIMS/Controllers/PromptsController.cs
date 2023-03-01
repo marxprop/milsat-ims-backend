@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MilsatIMS.Enums;
 using MilsatIMS.Interfaces;
 using MilsatIMS.ViewModels;
 using MilsatIMS.ViewModels.Prompts;
@@ -20,7 +21,7 @@ namespace MilsatIMS.Controllers
         /// Get the list of all live prompts
         /// </summary>
         /// <returns></returns>
-        [HttpGet()]
+        [HttpGet(), Authorize]
         public async Task<ActionResult<GenericResponse<List<PromptDTO>>>> GetPrompts()
         {
             var result = await _promptService.GetPrompts();
@@ -35,7 +36,7 @@ namespace MilsatIMS.Controllers
         /// Add a new live prompt
         /// </summary>
         /// <returns></returns>
-        [HttpPost("add")]
+        [HttpPost("add"), Authorize(Roles = nameof(RoleType.Admin))]
         public async Task<ActionResult<GenericResponse<PromptDTO>>> AddPrompt(PromptVm prompt)
         {
             var result = await _promptService.AddPrompt(prompt);
@@ -50,7 +51,7 @@ namespace MilsatIMS.Controllers
         /// Delete a live prompt
         /// </summary>
         /// <returns></returns>
-        [HttpPost("delete/{id}")]
+        [HttpPost("delete/{id}"), Authorize(Roles = nameof(RoleType.Admin))]
         public async Task<ActionResult<GenericResponse<PromptDTO>>> DeletePrompt(Guid id)
         {
             var result = await _promptService.DeletePrompt(id);
