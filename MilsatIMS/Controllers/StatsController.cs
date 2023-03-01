@@ -20,7 +20,7 @@ namespace MilsatIMS.Controllers
         /// Get the total number of interns and mentors
         /// </summary>
         /// <returns></returns>
-        [HttpGet("total")]
+        [HttpGet("total"), Authorize]
         public async Task<ActionResult<GetTotalUsersDTO>> GetTotalUsers()
         {
             var result = await _statsService.GetTotalUsers();
@@ -35,7 +35,7 @@ namespace MilsatIMS.Controllers
         /// Get the number of interns in each team
         /// </summary>
         /// <returns></returns>
-        [HttpGet("teams-count")]
+        [HttpGet("teams-count"), Authorize]
         public async Task<ActionResult<GetTeamTotalDTO>> GetTeamTotal()
         {
             var result = await _statsService.GetTeamTotal();
