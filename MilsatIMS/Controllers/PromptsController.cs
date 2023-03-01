@@ -48,6 +48,22 @@ namespace MilsatIMS.Controllers
         }
 
         /// <summary>
+        /// Update a live prompt
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("modify"), Authorize(Roles = nameof(RoleType.Admin))]
+        public async Task<ActionResult<GenericResponse<PromptDTO>>> UpdatePrompt(UpdatePromptVm prompt)
+        {
+            var result = await _promptService.UpdatePrompt(prompt);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+
+        /// <summary>
         /// Delete a live prompt
         /// </summary>
         /// <returns></returns>

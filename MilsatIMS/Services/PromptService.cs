@@ -84,10 +84,45 @@ namespace MilsatIMS.Services
             }
         }
 
+        public async Task<GenericResponse<PromptDTO>> UpdatePrompt(UpdatePromptVm vm)
+        {
+            _logger.LogInformation($"Received request to update a prompt");
+            try
+            {
+                var prompt = await _promptRepo.GetByIdAsync(vm.PromptId);
+                if (prompt == null)
+                {
+                    return new GenericResponse<PromptDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "This prompt does not exist"
+                    };
+                }
+
+                prompt.Info = vm.Info;
+                await _promptRepo.UpdateAsync(prompt);
+                return new GenericResponse<PromptDTO>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "This prompt has been updated successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while updating prompt. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<PromptDTO>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR
+                };
+            }
+        }
 
         public async Task<GenericResponse<PromptDTO>> DeletePrompt(Guid id)
         {
-            _logger.LogInformation($"Received request to to delete a prompt");
+            _logger.LogInformation($"Received request to delete a prompt");
             try
             {
                 var prompt = await _promptRepo.GetByIdAsync(id);
