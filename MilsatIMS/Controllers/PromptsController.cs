@@ -67,7 +67,7 @@ namespace MilsatIMS.Controllers
         /// Delete a live prompt
         /// </summary>
         /// <returns></returns>
-        [HttpPost("delete/{id}"), Authorize(Roles = nameof(RoleType.Admin))]
+        [HttpDelete("delete/{id}"), Authorize(Roles = nameof(RoleType.Admin))]
         public async Task<ActionResult<GenericResponse<PromptDTO>>> DeletePrompt(Guid id)
         {
             var result = await _promptService.DeletePrompt(id);
