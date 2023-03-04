@@ -89,7 +89,7 @@ namespace MilsatIMS.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("delete/{id}"), Authorize]
+        [HttpDelete("delete/{id}"), Authorize]
         public async Task<ActionResult<List<UserResponseDTO>>> DeleteUser(Guid id)
         {
             var result = await _userService.RemoveUser(id);
