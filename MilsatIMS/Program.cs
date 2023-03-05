@@ -30,6 +30,7 @@ try
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
+                ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8
                     .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
