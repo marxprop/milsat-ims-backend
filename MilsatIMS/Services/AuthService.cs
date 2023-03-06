@@ -85,13 +85,13 @@ namespace MilsatIMS.Services
             }
         }
 
-        public async Task<AuthResponseDTO> RefreshToken()
+        public async Task<AuthResponseDTO> RefreshToken(string _token)
         {
             try
             {
-                var refreshToken = _httpContext?.HttpContext?.Request.Cookies["refreshToken"];
-                _logger.LogInformation($"Received a request to refresh user credentials: Request:{refreshToken}");
-                var user = await _User.GetAll().Where(u => u.RefreshToken == refreshToken).FirstOrDefaultAsync();
+                //var refreshToken = _httpContext?.HttpContext?.Request.Cookies["refreshToken"];
+                _logger.LogInformation($"Received a request to refresh user credentials: Request:{_token}");
+                var user = await _User.GetAll().Where(u => u.RefreshToken == _token).FirstOrDefaultAsync();
                 if (user == null)
                 {
                     return new AuthResponseDTO { Success = false, Message = "Invalid Refresh Token" };
