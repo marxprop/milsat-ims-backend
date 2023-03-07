@@ -229,7 +229,7 @@ namespace MilsatIMS.Services
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(5.00),
+                expires: DateTime.UtcNow.AddDays(1.0),
                 signingCredentials: creds);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
