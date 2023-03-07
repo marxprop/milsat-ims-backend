@@ -41,7 +41,7 @@ namespace MilsatIMS.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<string>> RefreshToken(string token)
+        public async Task<ActionResult<string>> RefreshToken(RefreshTokenVm token)
         {
             var response = await _authService.RefreshToken(token);
             if (!response.Success)

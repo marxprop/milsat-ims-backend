@@ -11,7 +11,7 @@ namespace MilsatIMS.Interfaces
         Task<AuthResponseDTO> Login(UserLoginDTO request);
         Task<ForgotPasswordResponse> ForgotPassword(ForgetPasswordVm request);
         Task<ForgotPasswordResponse> ResetPassword(ResetPasswordVm request);
-        Task<AuthResponseDTO> RefreshToken(string _token);
+        Task<AuthResponseDTO> RefreshToken(RefreshTokenVm _token);
         //void SetRefreshToken(RefreshToken refreshToken, User user);
     }
 }
