@@ -249,14 +249,14 @@ namespace MilsatIMS.Services
 
         private async Task SetRefreshToken(RefreshToken refreshToken, User user)
         {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = refreshToken.Expires
-            };
+            //var cookieOptions = new CookieOptions
+            //{
+            //    HttpOnly = true,
+            //    Expires = refreshToken.Expires
+            //};
 
-            _httpContext?.HttpContext?.Response
-                .Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+            //_httpContext?.HttpContext?.Response
+            //    .Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
 
             user.RefreshToken = refreshToken.Token;
             user.TokenCreated = refreshToken.Created;
