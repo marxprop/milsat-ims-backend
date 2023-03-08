@@ -41,18 +41,6 @@ namespace MilsatIMS.Data
                 .WithOne(e => e.Mentor)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Session>()
-                .HasOne(e => e.Interns)
-                .WithMany(e => e.Sessions)
-                .HasForeignKey(e => e.InternId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Session>()
-                .HasOne(e => e.Mentor)
-                .WithMany(e => e.Sessions)
-                .HasForeignKey(e => e.MentorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             var all = createUsers();
             modelBuilder.Entity<User>()
                 .HasData(all[0], all[1], all[2]);
