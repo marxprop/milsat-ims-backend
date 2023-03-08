@@ -8,11 +8,11 @@ namespace MilsatIMS.Models
     {
         [Key]
         public Guid UserId { get; set; }
-        [ForeignKey("UserId")]
         public User User { get; set; }
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public MentorStatus Status { get; set; }
-        public List<Intern> Interns { get; set; }
-        public List<Session> Sessions { get; set; }
+        public List<InternMentorSession> IMS { get; set; }
+        //public List<Intern> Interns { get; set; }
+        //public List<Session> Sessions { get; set; }
     }
 }

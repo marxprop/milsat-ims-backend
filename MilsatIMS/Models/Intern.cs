@@ -8,7 +8,6 @@ namespace MilsatIMS.Models
     {
         [Key]
         public Guid UserId { get; set; }
-        [ForeignKey("UserId")]
         public User User { get; set; }
         [Required]
         public string CourseOfStudy { get; set; }
@@ -16,9 +15,10 @@ namespace MilsatIMS.Models
         public string Institution { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int Year { get; set; } = DateTime.UtcNow.Year;
-        public Guid? MentorId { get; set; }
-        [ForeignKey("MentorId")]
-        public Mentor? Mentor { get; set; }
-        public List<Session> Sessions { get; set; }
+        public List<InternMentorSession> IMS { get; set; }
+        //public Guid? MentorId { get; set; }
+        //[ForeignKey("MentorId")]
+        //public Mentor? Mentor { get; set; }
+        //public List<Session> Sessions { get; set; }
     }
 }

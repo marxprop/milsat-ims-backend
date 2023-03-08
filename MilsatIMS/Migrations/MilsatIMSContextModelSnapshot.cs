@@ -35,17 +35,38 @@ namespace MilsatIMS.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("MentorId")
-                        .HasColumnType("char(36)");
-
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("UserId");
 
+                    b.ToTable("Intern");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.InternMentorSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("InternId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InternId");
+
                     b.HasIndex("MentorId");
 
-                    b.ToTable("Intern");
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("IMS");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Mentor", b =>
@@ -62,20 +83,6 @@ namespace MilsatIMS.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Mentor");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = new Guid("c6f2bfb6-ac19-49a9-85b2-a5b0f41b7b27"),
-                            CreatedOn = new DateTime(2023, 3, 8, 14, 12, 39, 503, DateTimeKind.Utc).AddTicks(7906),
-                            Status = 0
-                        },
-                        new
-                        {
-                            UserId = new Guid("c1a8e789-dc5c-486d-be22-b6f07a891aa8"),
-                            CreatedOn = new DateTime(2023, 3, 8, 14, 12, 39, 503, DateTimeKind.Utc).AddTicks(7910),
-                            Status = 0
-                        });
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Prompt", b =>
@@ -105,12 +112,6 @@ namespace MilsatIMS.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("InternUserId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("MentorUserId")
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -122,10 +123,6 @@ namespace MilsatIMS.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("SessionId");
-
-                    b.HasIndex("InternUserId");
-
-                    b.HasIndex("MentorUserId");
 
                     b.ToTable("Session");
                 });
@@ -199,49 +196,13 @@ namespace MilsatIMS.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("c6f2bfb6-ac19-49a9-85b2-a5b0f41b7b27"),
-                            Bio = "",
-                            Email = "mentor1@gmail.com",
-                            FullName = "Sodiq Agboola",
-                            Gender = 0,
-                            PasswordHash = new byte[] { 139, 149, 192, 87, 170, 146, 21, 248, 172, 207, 158, 195, 205, 66, 105, 22, 242, 250, 30, 24, 230, 57, 84, 26, 42, 166, 90, 80, 249, 81, 183, 160, 214, 165, 243, 61, 133, 30, 233, 173, 61, 248, 187, 68, 244, 17, 250, 73, 26, 240, 254, 5, 128, 16, 235, 123, 171, 94, 57, 15, 181, 51, 55, 255 },
-                            PasswordSalt = new byte[] { 254, 236, 129, 164, 193, 135, 62, 29, 242, 174, 167, 32, 234, 125, 200, 202, 127, 199, 4, 17, 106, 220, 229, 3, 98, 60, 41, 66, 122, 204, 128, 252, 237, 141, 230, 194, 64, 148, 83, 60, 74, 143, 39, 113, 134, 134, 145, 253, 54, 197, 6, 217, 105, 226, 43, 143, 122, 39, 89, 47, 114, 104, 203, 105, 36, 104, 204, 173, 67, 237, 25, 17, 147, 96, 165, 49, 156, 254, 146, 220, 221, 70, 114, 12, 31, 103, 233, 180, 125, 107, 233, 105, 196, 160, 251, 78, 57, 54, 99, 220, 205, 143, 120, 36, 115, 54, 137, 179, 13, 62, 131, 218, 8, 110, 136, 233, 2, 60, 220, 30, 182, 92, 191, 195, 50, 185, 107, 122 },
-                            PasswordTokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PhoneNumber = "passwords",
-                            ProfilePicture = "",
-                            Role = 1,
-                            Team = 0,
-                            TokenCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            isDeleted = false
-                        },
-                        new
-                        {
-                            UserId = new Guid("c1a8e789-dc5c-486d-be22-b6f07a891aa8"),
-                            Bio = "",
-                            Email = "mentor2@gmail.com",
-                            FullName = "Sodiq Agboola",
-                            Gender = 0,
-                            PasswordHash = new byte[] { 190, 207, 121, 209, 134, 163, 90, 254, 220, 109, 210, 255, 178, 197, 105, 192, 184, 118, 148, 75, 137, 122, 215, 190, 212, 96, 240, 236, 125, 212, 174, 17, 214, 75, 32, 245, 3, 50, 10, 141, 77, 174, 71, 85, 211, 214, 174, 163, 32, 89, 208, 101, 201, 56, 139, 67, 0, 118, 21, 149, 131, 176, 220, 62 },
-                            PasswordSalt = new byte[] { 151, 180, 189, 27, 50, 50, 245, 76, 186, 198, 59, 144, 95, 189, 172, 167, 5, 226, 32, 216, 57, 96, 107, 158, 247, 137, 80, 229, 160, 126, 146, 80, 124, 35, 7, 162, 229, 162, 233, 178, 251, 2, 240, 26, 93, 45, 106, 24, 222, 92, 125, 3, 190, 54, 74, 48, 47, 212, 209, 54, 246, 237, 0, 230, 28, 190, 233, 144, 46, 57, 246, 17, 208, 209, 51, 175, 68, 118, 8, 53, 16, 69, 171, 4, 174, 91, 58, 230, 237, 175, 148, 153, 162, 63, 232, 207, 227, 206, 5, 168, 66, 224, 33, 128, 140, 110, 231, 238, 170, 124, 227, 193, 250, 89, 59, 51, 239, 171, 49, 115, 205, 221, 245, 52, 43, 138, 152, 80 },
-                            PasswordTokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PhoneNumber = "passwords",
-                            ProfilePicture = "",
-                            Role = 1,
-                            Team = 0,
-                            TokenCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            isDeleted = false
-                        },
-                        new
-                        {
-                            UserId = new Guid("6d51f3f8-a5da-495d-a162-1a6b8f349323"),
+                            UserId = new Guid("9141374b-01d1-4afe-b160-2326b454675c"),
                             Bio = "",
                             Email = "admin@milsat.com",
                             FullName = "Admin",
                             Gender = 0,
-                            PasswordHash = new byte[] { 109, 136, 42, 214, 81, 2, 115, 118, 195, 221, 212, 126, 49, 190, 49, 169, 168, 154, 24, 204, 140, 1, 232, 159, 197, 224, 202, 148, 227, 133, 197, 50, 229, 242, 62, 145, 58, 38, 12, 160, 238, 94, 253, 30, 205, 174, 211, 190, 16, 119, 206, 109, 182, 131, 208, 152, 41, 123, 190, 196, 46, 206, 58, 80 },
-                            PasswordSalt = new byte[] { 182, 105, 64, 187, 165, 125, 118, 25, 168, 78, 45, 158, 70, 239, 248, 9, 182, 218, 71, 38, 37, 104, 151, 51, 6, 125, 85, 224, 229, 55, 107, 254, 0, 111, 194, 104, 91, 67, 8, 31, 159, 255, 217, 181, 83, 42, 24, 14, 140, 28, 112, 243, 15, 235, 83, 94, 19, 101, 205, 125, 62, 67, 17, 103, 251, 74, 99, 100, 215, 155, 203, 115, 83, 89, 84, 85, 25, 57, 216, 88, 108, 47, 97, 194, 98, 19, 48, 26, 192, 223, 63, 44, 61, 11, 226, 160, 178, 237, 139, 91, 118, 143, 76, 109, 214, 134, 165, 148, 6, 102, 104, 254, 255, 21, 146, 40, 188, 180, 228, 41, 150, 41, 185, 218, 162, 70, 168, 226 },
+                            PasswordHash = new byte[] { 206, 143, 93, 203, 168, 89, 67, 199, 20, 176, 166, 78, 89, 239, 252, 47, 182, 125, 32, 47, 235, 170, 196, 14, 201, 106, 243, 92, 28, 11, 111, 126, 227, 15, 238, 104, 41, 83, 52, 63, 3, 80, 107, 251, 230, 94, 171, 230, 138, 239, 88, 49, 193, 104, 148, 165, 39, 162, 130, 134, 144, 91, 209, 201 },
+                            PasswordSalt = new byte[] { 253, 130, 92, 112, 234, 82, 201, 128, 220, 216, 198, 115, 242, 67, 81, 99, 84, 140, 22, 142, 5, 221, 46, 140, 176, 143, 0, 73, 125, 192, 79, 177, 195, 11, 76, 4, 206, 117, 235, 60, 144, 225, 5, 16, 141, 101, 159, 162, 85, 100, 186, 215, 28, 36, 82, 189, 95, 252, 193, 101, 217, 125, 214, 165, 158, 246, 156, 0, 26, 5, 144, 62, 45, 177, 234, 73, 223, 105, 248, 243, 54, 43, 159, 230, 252, 157, 17, 59, 64, 151, 106, 67, 42, 136, 149, 234, 16, 7, 125, 47, 125, 229, 188, 11, 60, 33, 126, 44, 63, 246, 101, 239, 24, 3, 255, 85, 131, 53, 195, 78, 80, 153, 223, 139, 121, 146, 16, 132 },
                             PasswordTokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PhoneNumber = "datasolutions",
                             ProfilePicture = "",
@@ -255,19 +216,40 @@ namespace MilsatIMS.Migrations
 
             modelBuilder.Entity("MilsatIMS.Models.Intern", b =>
                 {
-                    b.HasOne("MilsatIMS.Models.Mentor", "Mentor")
-                        .WithMany("Interns")
-                        .HasForeignKey("MentorId");
-
                     b.HasOne("MilsatIMS.Models.User", "User")
                         .WithOne("Intern")
                         .HasForeignKey("MilsatIMS.Models.Intern", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.InternMentorSession", b =>
+                {
+                    b.HasOne("MilsatIMS.Models.Intern", "Intern")
+                        .WithMany("IMS")
+                        .HasForeignKey("InternId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MilsatIMS.Models.Mentor", "Mentor")
+                        .WithMany("IMS")
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MilsatIMS.Models.Session", "Session")
+                        .WithMany("IMS")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Intern");
+
                     b.Navigation("Mentor");
 
-                    b.Navigation("User");
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Mentor", b =>
@@ -281,27 +263,19 @@ namespace MilsatIMS.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MilsatIMS.Models.Session", b =>
-                {
-                    b.HasOne("MilsatIMS.Models.Intern", null)
-                        .WithMany("Sessions")
-                        .HasForeignKey("InternUserId");
-
-                    b.HasOne("MilsatIMS.Models.Mentor", null)
-                        .WithMany("Sessions")
-                        .HasForeignKey("MentorUserId");
-                });
-
             modelBuilder.Entity("MilsatIMS.Models.Intern", b =>
                 {
-                    b.Navigation("Sessions");
+                    b.Navigation("IMS");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Mentor", b =>
                 {
-                    b.Navigation("Interns");
+                    b.Navigation("IMS");
+                });
 
-                    b.Navigation("Sessions");
+            modelBuilder.Entity("MilsatIMS.Models.Session", b =>
+                {
+                    b.Navigation("IMS");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.User", b =>

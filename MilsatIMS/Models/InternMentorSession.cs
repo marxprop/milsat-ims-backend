@@ -1,7 +1,11 @@
-﻿namespace MilsatIMS.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MilsatIMS.Models
 {
     public class InternMentorSession
     {
+        [Key]
+        public int Id { get; set; }
         public Guid InternId { get; set; }
         public Intern Intern { get; set; }
         public Guid MentorId { get; set; }
