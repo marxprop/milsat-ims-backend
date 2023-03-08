@@ -70,6 +70,8 @@ try
     builder.Services.AddScoped<IStatsService, StatsService>();
     builder.Services.AddScoped<IPromptService, PromptService>();
     builder.Services.AddScoped<IActivityService, ActivityService>();
+    builder.Services.AddScoped<IActivityService, ActivityService>();
+    builder.Services.AddScoped<ISessionService, SessionService>();
 
     builder.Services.AddCors(options => options.AddPolicy(name: "NgOrigins",
         policy =>
