@@ -13,5 +13,6 @@ namespace MilsatIMS.Models
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         public MentorStatus Status { get; set; }
         public List<Intern> Interns { get; set; }
+        public List<Session> Sessions { get; set; }
     }
 }

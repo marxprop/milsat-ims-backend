@@ -19,5 +19,6 @@ namespace MilsatIMS.Models
         public Guid? MentorId { get; set; }
         [ForeignKey("MentorId")]
         public Mentor? Mentor { get; set; }
+        public List<Session> Sessions { get; set; }
     }
 }

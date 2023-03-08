@@ -18,7 +18,7 @@ namespace MilsatIMS.Services
 
         public async Task<GenericResponse<PromptDTO>> AddPrompt(PromptVm prompt)
         {
-            _logger.LogInformation($"Received request to to create a new prompt");
+            _logger.LogInformation($"Received request to create a new prompt");
             try
             {
                 var new_prompt = new Prompt { Info = prompt.Info };

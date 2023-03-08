@@ -21,6 +21,7 @@ namespace MilsatIMS.Data
         public DbSet<Intern> Intern { get; set; }
         public DbSet<Mentor> Mentor { get; set; }
         public DbSet<Prompt> Prompt { get; set; }
+        public DbSet<Session> Session { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().HasQueryFilter(b => !b.isDeleted);
@@ -39,6 +40,18 @@ namespace MilsatIMS.Data
                 .HasOne(e => e.User)
                 .WithOne(e => e.Mentor)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Session>()
+                .HasOne(e => e.Interns)
+                .WithMany(e => e.Sessions)
+                .HasForeignKey(e => e.InternId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Session>()
+                .HasOne(e => e.Mentor)
+                .WithMany(e => e.Sessions)
+                .HasForeignKey(e => e.MentorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             var all = createUsers();
             modelBuilder.Entity<User>()

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MilsatIMS.Interfaces;
+using MilsatIMS.ViewModels;
+using MilsatIMS.ViewModels.Sessions;
 
 namespace MilsatIMS.Controllers
 {
@@ -14,13 +16,78 @@ namespace MilsatIMS.Controllers
         }
 
         /// <summary>
-        /// Add a new session
+        /// Create a new session
         /// </summary>
         /// <returns></returns>
-        [HttpPost("submit")]
-        public async Task<ActionResult> SubmitReport()
+        [HttpPost("create")]
+        public async Task<ActionResult<GenericResponse<SessionDTO>>> CreateSession(SessionVm session)
         {
-            return Ok();
+            var result = await _sessionService.CreateSession(session);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get the current live/ongoing session.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("live")]
+        public async Task<ActionResult<GenericResponse<SessionDTO>>> GetCurrentSession()
+        {
+            var result = await _sessionService.GetCurrentSession();
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Create all sessions
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet()]
+        public async Task<ActionResult<GenericResponse<SessionDTO>>> GetAllSession()
+        {
+            var result = await _sessionService.GetSessions();
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get a session by id
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GenericResponse<SessionDTO>>> GeSessionById(Guid id)
+        {
+            var result = await _sessionService.GetSessionById(id);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// End the current live session
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("end")]
+        public async Task<ActionResult<GenericResponse<SessionDTO>>> CloseSession()
+        {
+            var result = await _sessionService.CloseSession();
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }
