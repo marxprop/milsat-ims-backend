@@ -24,4 +24,20 @@
         None
     }
 
+    public enum MentorRating
+    {
+        Bad,
+        Fair,
+        Good
+    }
+
+    public enum InternRating
+    {
+        One,
+        Two,
+        Three,
+        Four,
+        Five
+    }
+
 }
