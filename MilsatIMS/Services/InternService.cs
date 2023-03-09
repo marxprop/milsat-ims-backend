@@ -70,7 +70,7 @@ namespace MilsatIMS.Services
                 var selectedMentor = await SelectMentor(newUser.Team);
                 if (selectedMentor != null)
                 {
-                    ims.MentorId = selectedMentor.UserId;
+                    ims.MentorId = selectedMentor.MentorId;
                 }
 
                 var session = await _sessionRepo.GetAll().Where(s => s.Status == Status.Current).SingleOrDefaultAsync();
@@ -179,7 +179,7 @@ namespace MilsatIMS.Services
                         Gender = ims.Intern.User.Gender,
                         SessionId = ims.SessionId,
                         Bio = ims.Intern.User.Bio,
-                        ProfilePicture = ims.Intern.User.ProfilePicture,
+                        ProfilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], ims.Intern.User.ProfilePicture),
                         Mentor = new MentorMiniDTO
                         {
                             MentorId = ims.Mentor.User.UserId,
@@ -239,7 +239,7 @@ namespace MilsatIMS.Services
                        Gender = ims.Intern.User.Gender,
                        SessionId = ims.SessionId,
                        Bio = ims.Intern.User.Bio,
-                       ProfilePicture = ims.Intern.User.ProfilePicture,
+                       ProfilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], ims.Intern.User.ProfilePicture),
                        Mentor = new MentorMiniDTO
                        {
                            MentorId = ims.Mentor.User.UserId,
@@ -314,7 +314,7 @@ namespace MilsatIMS.Services
                        Gender = ims.Intern.User.Gender,
                        SessionId = ims.SessionId,
                        Bio = ims.Intern.User.Bio,
-                       ProfilePicture = ims.Intern.User.ProfilePicture,
+                       ProfilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], ims.Intern.User.ProfilePicture),
                        Mentor = new MentorMiniDTO
                        {
                            MentorId = ims.Mentor.User.UserId,
@@ -325,7 +325,7 @@ namespace MilsatIMS.Services
                 {
                     Successful = true,
                     ResponseCode = ResponseCode.Successful,
-                    Message = "Successfully filtered interns",
+                    Message = "Successfully searched for interns",
                     Data = users
                 };
             }
@@ -403,7 +403,7 @@ namespace MilsatIMS.Services
                         {
                             Successful = false,
                             ResponseCode = ResponseCode.NotFound,
-                            Message = "No Mentor with this Id was found"
+                            Message = "No Mentor with this Id was found or not in the same team"
                         };
                     }
 

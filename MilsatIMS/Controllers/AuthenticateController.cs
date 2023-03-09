@@ -122,7 +122,7 @@ namespace MilsatIMS.Controllers
         /// <param name="mentor"></param>
         /// <returns></returns>
         [HttpPost("mentor"), Authorize(Roles = nameof(RoleType.Admin))]
-        public async Task<ActionResult<InternResponseDTO>> RegisterMentor(List<CreateMentorVm> mentor)
+        public async Task<ActionResult<InternResponseDTO>> RegisterMentor(CreateMentorVm mentor)
         {
             var result = await _mentorService.AddMentor(mentor);
             if (!result.Successful)

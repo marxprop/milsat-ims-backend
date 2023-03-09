@@ -29,13 +29,14 @@ namespace MilsatIMS.Controllers
         /// <summary>
         /// Get all the mentors in the system
         /// </summary>
+        /// <param name="sessionid"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet, Authorize]
-        public async Task<ActionResult<List<MentorResponseDTO>>> GetMentor(int pageNumber = 1, int pageSize = 15)
+        public async Task<ActionResult<List<MentorResponseDTO>>> GetMentor(Guid? sessionid, int pageNumber = 1, int pageSize = 15)
         {
-            var result = await _mentorService.GetAllMentors(pageNumber, pageSize);
+            var result = await _mentorService.GetAllMentors(sessionid, pageNumber, pageSize);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -47,13 +48,14 @@ namespace MilsatIMS.Controllers
         /// Search for a mentor in the system using id, name or team
         /// </summary>
         /// <param name="vm"></param>
+        /// <param name="sessionid"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("search"), Authorize] //(Roles = $"{nameof(RoleType.Admin)}, {nameof(RoleType.Mentor)}")
-        public async Task<ActionResult<MentorResponseDTO>> GetMentor([FromQuery] GetMentorVm vm, int pageNumber = 1, int pageSize = 15)
+        public async Task<ActionResult<MentorResponseDTO>> GetMentor([FromQuery] GetMentorVm vm, Guid? sessionid, int pageNumber = 1, int pageSize = 15)
         {
-            var result = await _mentorService.GetMentors(vm, pageNumber, pageSize);
+            var result = await _mentorService.GetMentors(vm, sessionid, pageNumber, pageSize);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -67,9 +69,9 @@ namespace MilsatIMS.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}"), Authorize]
-        public async Task<ActionResult<MentorResponseDTO>> GetMentor(Guid id)
+        public async Task<ActionResult<MentorResponseDTO>> GetMentor(Guid? sessionid, Guid id)
         {
-            var result = await _mentorService.GetMentorById(id);
+            var result = await _mentorService.GetMentorById(sessionid, id);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -83,7 +85,7 @@ namespace MilsatIMS.Controllers
         /// <param name="mentor"></param>
         /// <returns></returns>
         [HttpPut("modify"), Authorize(Roles = nameof(RoleType.Admin))]
-        public async Task<ActionResult<List<MentorResponseDTO>>> PutMentor(UpdateMentorVm mentor)
+        public async Task<ActionResult<MentorResponseUpdateDTO>> PutMentor(UpdateMentorVm mentor)
         {
             var result = await _mentorService.UpdateMentor(mentor);
             if (!result.Successful)
