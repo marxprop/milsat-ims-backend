@@ -7,6 +7,7 @@ namespace MilsatIMS.Models
     {
         [Key]
         public Guid SessionId { get; set; }
+        public List<User> Users { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

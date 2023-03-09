@@ -46,7 +46,7 @@ namespace MilsatIMS.Controllers
         }
 
         /// <summary>
-        /// Create all sessions
+        /// Get all sessions
         /// </summary>
         /// <returns></returns>
         [HttpGet()]

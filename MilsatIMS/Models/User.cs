@@ -24,6 +24,7 @@ namespace MilsatIMS.Models
         public byte[] PasswordHash { get; set; } = new byte[32];
         [Required]
         public byte[] PasswordSalt { get; set; } = new byte[32];
+        public List<Session> Sessions { get; set; }
         public string? RefreshToken { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime PasswordTokenExpires { get; set; }

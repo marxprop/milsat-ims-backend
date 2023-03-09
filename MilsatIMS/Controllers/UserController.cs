@@ -18,13 +18,14 @@ namespace MilsatIMS.Controllers
         /// <summary>
         /// Get all the users in the system
         /// </summary>
+        /// <param name="sessionid"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet, Authorize]
-        public async Task<ActionResult<List<UserResponseDTO>>> GetUsers(int pageNumber = 1, int pageSize = 15)
+        public async Task<ActionResult<List<UserResponseDTO>>> GetUsers(Guid? sessionid, int pageNumber = 1, int pageSize = 15)
         {
-            var result = await _userService.GetAllUsers(pageNumber, pageSize);
+            var result = await _userService.GetAllUsers(sessionid, pageNumber, pageSize);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -38,9 +39,9 @@ namespace MilsatIMS.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}"), Authorize]
-        public async Task<ActionResult<List<UserResponseDTO>>> GetUser(Guid id)
+        public async Task<ActionResult<List<UserResponseDTO>>> GetUser(Guid? sessionid, Guid id)
         {
-            var result = await _userService.GetUserById(id);
+            var result = await _userService.GetUserById(sessionid, id);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -53,13 +54,14 @@ namespace MilsatIMS.Controllers
         /// Search for a user in the system using id, name or team
         /// </summary>
         /// <param name="vm"></param>
+        /// <param name="sessionid"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("search"), Authorize]
-        public async Task<ActionResult<List<UserResponseDTO>>> FilterUsers([FromQuery] GetUserVm vm, int pageNumber=1, int pageSize=15)
+        public async Task<ActionResult<List<UserResponseDTO>>> FilterUsers([FromQuery] GetUserVm vm, Guid? sessionid, int pageNumber=1, int pageSize=15)
         {
-            var result = await _userService.FilterUsers(vm, pageNumber, pageSize);
+            var result = await _userService.FilterUsers(vm,sessionid, pageNumber, pageSize);
             if (!result.Successful)
             {
                 return BadRequest(result);

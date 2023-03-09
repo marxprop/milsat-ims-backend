@@ -17,23 +17,51 @@ namespace MilsatIMS.Services
         private readonly ILogger<InternService> _logger;
         private readonly IConfiguration _iconfig;
         private readonly IHttpContextAccessor _httpContext;
+        private readonly IAsyncRepository<Session> _sessionRepo;
+        private readonly IAsyncRepository<InternMentorSession> _imsRepo;
 
-        public UserService(IConfiguration iconfig,
+        public UserService(IConfiguration iconfig, IAsyncRepository<Session> sessionRepo, IAsyncRepository<InternMentorSession> imsRepo,
             ILogger<InternService> logger, IAsyncRepository<User> userRepo, IHttpContextAccessor httpContext)
         {
             _logger = logger;
             _userRepo = userRepo;
             _iconfig = iconfig;
             _httpContext = httpContext;
+            _sessionRepo = sessionRepo;
+            _imsRepo = imsRepo;
         }
 
-
-        public async Task<GenericResponse<List<UserResponseDTO>>> GetAllUsers(int pageNumber, int pageSize)
+        public async Task<Guid?> CheckSession(Guid? sessionId)
+        {
+            if (sessionId == null)
+            {
+                var _currentSession = await _sessionRepo.GetAll().Where(x => x.Status == Status.Current).SingleOrDefaultAsync();
+                var id = _currentSession?.SessionId;
+                return id;
+            }
+            else
+            {
+                var _currentSession = await _sessionRepo.GetAll().Where(x => x.SessionId == sessionId).SingleOrDefaultAsync();
+                var id = _currentSession?.SessionId;
+                return id;
+            }
+        }
+        public async Task<GenericResponse<List<UserResponseDTO>>> GetAllUsers(Guid? sessionid, int pageNumber, int pageSize)
         {
             _logger.LogInformation($"Received a request to fetch paginated User(s): Request: pageNumber:{pageNumber}, pageSize:{pageSize}");
             try
             {
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<List<UserResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
+
                 var pagedData = await _userRepo.GetAll()
+                    .Include(x => x.Sessions.Where(xx => xx.SessionId == (Guid)_sessionId))
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -57,12 +85,23 @@ namespace MilsatIMS.Services
             }
         }
 
-        public async Task<GenericResponse<List<UserResponseDTO>>> GetUserById(Guid id)
+        public async Task<GenericResponse<List<UserResponseDTO>>> GetUserById(Guid? sessionid, Guid id)
         {
             _logger.LogInformation($"Received a request to fetch a User: Request(user id):{id}");
             try
             {
-                var user = await _userRepo.GetByIdAsync(id);
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<List<UserResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
+
+                var user = await _userRepo.GetAll()
+                    .Include(x => x.Sessions.Where(y => y.SessionId == _sessionId))
+                    .Where(x => x.UserId == id).FirstOrDefaultAsync();
                 if (user == null)
                 {
                     return new GenericResponse<List<UserResponseDTO>>
@@ -89,12 +128,21 @@ namespace MilsatIMS.Services
             }
         }
 
-        public async Task<GenericResponse<List<UserResponseDTO>>> FilterUsers(GetUserVm vm, int pageNumber, int pageSize)
+        public async Task<GenericResponse<List<UserResponseDTO>>> FilterUsers(GetUserVm vm, Guid? sessionid, int pageNumber, int pageSize)
         {
             _logger.LogInformation($"Received a request to Fetch User(s): Request:{JsonConvert.SerializeObject(vm)}");
             try
             {
-                var filtered = await _userRepo.GetAll()
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<List<UserResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
+
+                var filtered = await _userRepo.GetAll().Include(x => x.Sessions.Where(y => y.SessionId == _sessionId))
                                                  .Where(x =>
                                                          (vm.name == null || x.FullName.Contains(vm.name))
                                                          && (vm.Team == null || x.Team == vm.Team)
@@ -125,6 +173,16 @@ namespace MilsatIMS.Services
             _logger.LogInformation($"Received to update user profile: Request:{JsonConvert.SerializeObject(vm)}");
             try
             {
+
+                var _sessionId = await CheckSession(null);
+                if (_sessionId == null)
+                    return new GenericResponse<UserResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "You can not update when there is no ongoing session"
+                    };
+
                 var user_claim = _httpContext?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
                 if (user_claim == null)
                 {
@@ -136,9 +194,12 @@ namespace MilsatIMS.Services
                     };
                 }
 
-                string user_id = user_claim.Value;
+                Guid user_id;
+                Guid.TryParse(user_claim.Value, out user_id);
 
-                var user = await _userRepo.GetByIdAsync(Guid.Parse(user_id));
+                var user = await _userRepo.GetAll()
+                    .Include(x => x.Sessions.Where(y => y.SessionId == _sessionId))
+                    .Where(x => x.UserId == user_id).FirstOrDefaultAsync(); ;
 
                 if (user == null)
                 {
