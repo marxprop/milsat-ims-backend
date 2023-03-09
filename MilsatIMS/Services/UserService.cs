@@ -61,7 +61,8 @@ namespace MilsatIMS.Services
                     };
 
                 var pagedData = await _userRepo.GetAll()
-                    .Include(x => x.Sessions.Where(xx => xx.SessionId == (Guid)_sessionId))
+                    .Include(x => x.Intern.IMS.Where(y => y.SessionId == sessionid))
+                    .Include(x => x.Mentor.IMS.Where(y => y.SessionId == sessionid))
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -100,7 +101,8 @@ namespace MilsatIMS.Services
                     };
 
                 var user = await _userRepo.GetAll()
-                    .Include(x => x.Sessions.Where(y => y.SessionId == _sessionId))
+                    .Include(x => x.Intern.IMS.Where(y => y.SessionId == sessionid))
+                    .Include(x => x.Mentor.IMS.Where(y => y.SessionId == sessionid))
                     .Where(x => x.UserId == id).FirstOrDefaultAsync();
                 if (user == null)
                 {
@@ -142,7 +144,8 @@ namespace MilsatIMS.Services
                         Message = "There is no ongoing session or sessionId does not exist"
                     };
 
-                var filtered = await _userRepo.GetAll().Include(x => x.Sessions.Where(y => y.SessionId == _sessionId))
+                var filtered = await _userRepo.GetAll().Include(x => x.Intern.IMS.Where(y => y.SessionId == sessionid))
+                                                .Include(x => x.Mentor.IMS.Where(y => y.SessionId == sessionid))
                                                  .Where(x =>
                                                          (vm.name == null || x.FullName.Contains(vm.name))
                                                          && (vm.Team == null || x.Team == vm.Team)
@@ -198,7 +201,8 @@ namespace MilsatIMS.Services
                 Guid.TryParse(user_claim.Value, out user_id);
 
                 var user = await _userRepo.GetAll()
-                    .Include(x => x.Sessions.Where(y => y.SessionId == _sessionId))
+                    .Include(x => x.Intern.IMS.Where(y => y.SessionId == user_id))
+                    .Include(x => x.Mentor.IMS.Where(y => y.SessionId == user_id))
                     .Where(x => x.UserId == user_id).FirstOrDefaultAsync(); ;
 
                 if (user == null)

@@ -11,8 +11,8 @@ using MilsatIMS.Data;
 namespace MilsatIMS.Migrations
 {
     [DbContext(typeof(MilsatIMSContext))]
-    [Migration("20230309150717_user_session")]
-    partial class user_session
+    [Migration("20230309154045_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -212,13 +212,13 @@ namespace MilsatIMS.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("15597cc2-84c0-4b0b-a9bc-5d5242520e24"),
+                            UserId = new Guid("32ea9d03-c649-4609-8ba6-64b2e4c00559"),
                             Bio = "",
                             Email = "admin@milsat.com",
                             FullName = "Admin",
                             Gender = 0,
-                            PasswordHash = new byte[] { 162, 5, 255, 87, 3, 111, 37, 75, 217, 216, 39, 139, 186, 210, 245, 85, 72, 122, 3, 249, 189, 147, 59, 99, 185, 174, 12, 36, 106, 139, 85, 185, 34, 249, 64, 227, 4, 222, 238, 219, 253, 23, 197, 203, 27, 127, 81, 169, 7, 237, 213, 138, 44, 224, 150, 76, 53, 139, 133, 37, 30, 87, 155, 210 },
-                            PasswordSalt = new byte[] { 158, 148, 110, 50, 67, 152, 54, 120, 143, 61, 131, 54, 126, 189, 77, 204, 191, 36, 31, 249, 90, 74, 44, 127, 243, 12, 226, 218, 189, 138, 249, 18, 211, 238, 176, 123, 122, 23, 184, 28, 109, 29, 126, 224, 178, 30, 25, 165, 53, 162, 64, 148, 13, 92, 121, 75, 23, 111, 86, 99, 130, 136, 17, 47, 48, 244, 22, 167, 110, 161, 116, 135, 220, 183, 51, 55, 109, 217, 195, 182, 135, 85, 204, 67, 207, 38, 217, 212, 116, 232, 44, 119, 75, 232, 42, 219, 247, 187, 56, 29, 209, 92, 83, 214, 187, 29, 2, 112, 76, 81, 130, 221, 60, 0, 193, 126, 131, 3, 45, 121, 190, 51, 165, 243, 188, 175, 70, 40 },
+                            PasswordHash = new byte[] { 99, 123, 27, 25, 87, 146, 93, 172, 186, 36, 89, 186, 192, 103, 53, 248, 191, 235, 5, 112, 249, 164, 81, 190, 18, 143, 167, 192, 197, 4, 158, 242, 180, 146, 128, 145, 79, 30, 71, 249, 181, 86, 221, 67, 204, 221, 98, 4, 59, 42, 200, 169, 131, 151, 143, 189, 158, 35, 14, 89, 88, 40, 131, 196 },
+                            PasswordSalt = new byte[] { 122, 159, 135, 172, 73, 44, 164, 116, 204, 230, 237, 114, 210, 71, 87, 128, 18, 231, 0, 57, 157, 179, 246, 224, 152, 198, 91, 30, 155, 229, 165, 57, 191, 241, 225, 182, 222, 106, 255, 90, 158, 27, 57, 231, 116, 26, 97, 241, 61, 135, 182, 158, 125, 30, 213, 63, 9, 123, 255, 153, 221, 244, 247, 49, 236, 245, 51, 32, 31, 141, 219, 238, 112, 25, 234, 98, 128, 91, 120, 47, 174, 242, 48, 54, 247, 174, 73, 227, 231, 21, 223, 112, 222, 24, 231, 220, 57, 52, 5, 7, 219, 231, 173, 31, 24, 27, 137, 189, 236, 75, 254, 242, 100, 231, 55, 22, 107, 232, 84, 250, 178, 28, 240, 128, 236, 238, 99, 106 },
                             PasswordTokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PhoneNumber = "datasolutions",
                             ProfilePicture = "",
@@ -228,21 +228,6 @@ namespace MilsatIMS.Migrations
                             TokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             isDeleted = false
                         });
-                });
-
-            modelBuilder.Entity("SessionUser", b =>
-                {
-                    b.Property<Guid>("SessionsSessionId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("UsersUserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("SessionsSessionId", "UsersUserId");
-
-                    b.HasIndex("UsersUserId");
-
-                    b.ToTable("SessionUser");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Intern", b =>
@@ -290,21 +275,6 @@ namespace MilsatIMS.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SessionUser", b =>
-                {
-                    b.HasOne("MilsatIMS.Models.Session", null)
-                        .WithMany()
-                        .HasForeignKey("SessionsSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MilsatIMS.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Intern", b =>

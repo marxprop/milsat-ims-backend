@@ -32,10 +32,6 @@ namespace MilsatIMS.Data
                 .WithOne(e => e.Intern)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<User>()
-                .HasMany(e => e.Sessions)
-                .WithMany(e => e.Users);
-
             modelBuilder.Entity<Mentor>()
                 .HasOne(e => e.User)
                 .WithOne(e => e.Mentor)
