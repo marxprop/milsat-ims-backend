@@ -30,56 +30,60 @@ namespace MilsatIMS.Services
             _iconfig = iconfig;
         }
 
-        //public async Task<GenericResponse<List<MentorResponseDTO>>> AddMentor(List<CreateMentorVm> vm)
-        //{
-        //    _logger.LogInformation($"Received a request to add new Mentor(s): Request:{JsonConvert.SerializeObject(vm)}");
-        //    try
-        //    {
-        //        var mentors = new List<Mentor>();
-        //        foreach (CreateMentorVm mentor in vm)
-        //        {
-        //            var user = await _userRepo.GetAll().Where(x => x.Email == mentor.Email).FirstOrDefaultAsync();
-        //            if (user != null)
-        //            {
-        //                return new GenericResponse<List<MentorResponseDTO>>
-        //                {
-        //                    Successful = false,
-        //                    ResponseCode = ResponseCode.INVALID_REQUEST,
-        //                    Message = "User with this Email already exists"
-        //                };
-        //            }
-        //            var newUser = new User { 
-        //                Email = mentor.Email, Role = RoleType.Mentor,
-        //                FullName = mentor.FullName, Gender = mentor.Gender,
-        //                PhoneNumber = mentor.PhoneNumber, Team = mentor.Team
-        //            };
-        //            newUser = _authService.RegisterPassword(newUser, mentor.PhoneNumber);
-        //            await _userRepo.AddAsync(newUser);
-        //            var singleMentor = new Mentor { UserId = newUser.UserId, Interns = new List<Intern>() };
-        //            singleMentor.UserId = newUser.UserId;
-        //            mentors.Add(singleMentor);
-        //        }
-        //        await _mentorRepo.AddRangeAsync(mentors);
+        public async Task<GenericResponse<List<MentorResponseDTO>>> AddMentor(List<CreateMentorVm> vm)
+        {
+            _logger.LogInformation($"Received a request to add new Mentor(s): Request:{JsonConvert.SerializeObject(vm)}");
+            try
+            {
+                var mentors = new List<Mentor>();
+                foreach (CreateMentorVm mentor in vm)
+                {
+                    var user = await _userRepo.GetAll().Where(x => x.Email == mentor.Email).FirstOrDefaultAsync();
+                    if (user != null)
+                    {
+                        return new GenericResponse<List<MentorResponseDTO>>
+                        {
+                            Successful = false,
+                            ResponseCode = ResponseCode.INVALID_REQUEST,
+                            Message = "User with this Email already exists"
+                        };
+                    }
+                    var newUser = new User
+                    {
+                        Email = mentor.Email,
+                        Role = RoleType.Mentor,
+                        FullName = mentor.FullName,
+                        Gender = mentor.Gender,
+                        PhoneNumber = mentor.PhoneNumber,
+                        Team = mentor.Team
+                    };
+                    newUser = _authService.RegisterPassword(newUser, mentor.PhoneNumber);
+                    await _userRepo.AddAsync(newUser);
+                    var singleMentor = new Mentor { UserId = newUser.UserId, Interns = new List<Intern>() };
+                    singleMentor.UserId = newUser.UserId;
+                    mentors.Add(singleMentor);
+                }
+                await _mentorRepo.AddRangeAsync(mentors);
 
-        //        //Crete response body
-        //        var newMentors = MentorResponseData(mentors);
-        //        return new GenericResponse<List<MentorResponseDTO>>
-        //        {
-        //            Successful = true,
-        //            ResponseCode = ResponseCode.Successful,
-        //            Data = newMentors
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<List<MentorResponseDTO>>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR
-        //        };
-        //    }
-        //}
+                //Crete response body
+                var newMentors = MentorResponseData(mentors);
+                return new GenericResponse<List<MentorResponseDTO>>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Data = newMentors
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<List<MentorResponseDTO>>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR
+                };
+            }
+        }
 
         //public async Task<GenericResponse<List<MentorResponseDTO>>> GetAllMentors(int pageNumber, int pageSize)
         //{
@@ -279,10 +283,10 @@ namespace MilsatIMS.Services
             return internIDs;
         }
 
-        public Task<GenericResponse<List<MentorResponseDTO>>> AddMentor(List<CreateMentorVm> vm)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<GenericResponse<List<MentorResponseDTO>>> AddMentor(List<CreateMentorVm> vm)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public Task<GenericResponse<List<MentorResponseDTO>>> GetAllMentors(int pageNumber, int pageSize)
         {

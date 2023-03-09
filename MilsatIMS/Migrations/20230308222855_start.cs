@@ -1,12 +1,11 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace MilsatIMS.Migrations
 {
-    public partial class session : Migration
+    public partial class start : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -84,6 +83,7 @@ namespace MilsatIMS.Migrations
                 name: "Intern",
                 columns: table => new
                 {
+                    InternId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     CourseOfStudy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -94,7 +94,7 @@ namespace MilsatIMS.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Intern", x => x.UserId);
+                    table.PrimaryKey("PK_Intern", x => x.InternId);
                     table.ForeignKey(
                         name: "FK_Intern_Users_UserId",
                         column: x => x.UserId,
@@ -108,13 +108,14 @@ namespace MilsatIMS.Migrations
                 name: "Mentor",
                 columns: table => new
                 {
+                    MentorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Mentor", x => x.UserId);
+                    table.PrimaryKey("PK_Mentor", x => x.MentorId);
                     table.ForeignKey(
                         name: "FK_Mentor_Users_UserId",
                         column: x => x.UserId,
@@ -128,27 +129,25 @@ namespace MilsatIMS.Migrations
                 name: "IMS",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    IMSId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     InternId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    MentorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    MentorId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     SessionId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IMS", x => x.Id);
+                    table.PrimaryKey("PK_IMS", x => x.IMSId);
                     table.ForeignKey(
                         name: "FK_IMS_Intern_InternId",
                         column: x => x.InternId,
                         principalTable: "Intern",
-                        principalColumn: "UserId",
+                        principalColumn: "InternId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_IMS_Mentor_MentorId",
                         column: x => x.MentorId,
                         principalTable: "Mentor",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "MentorId");
                     table.ForeignKey(
                         name: "FK_IMS_Session_SessionId",
                         column: x => x.SessionId,
@@ -161,7 +160,7 @@ namespace MilsatIMS.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "Bio", "Email", "FullName", "Gender", "PasswordHash", "PasswordResetToken", "PasswordSalt", "PasswordTokenExpires", "PhoneNumber", "ProfilePicture", "RefreshToken", "Role", "Team", "TokenCreated", "TokenExpires", "isDeleted" },
-                values: new object[] { new Guid("9141374b-01d1-4afe-b160-2326b454675c"), "", "admin@milsat.com", "Admin", 0, new byte[] { 206, 143, 93, 203, 168, 89, 67, 199, 20, 176, 166, 78, 89, 239, 252, 47, 182, 125, 32, 47, 235, 170, 196, 14, 201, 106, 243, 92, 28, 11, 111, 126, 227, 15, 238, 104, 41, 83, 52, 63, 3, 80, 107, 251, 230, 94, 171, 230, 138, 239, 88, 49, 193, 104, 148, 165, 39, 162, 130, 134, 144, 91, 209, 201 }, null, new byte[] { 253, 130, 92, 112, 234, 82, 201, 128, 220, 216, 198, 115, 242, 67, 81, 99, 84, 140, 22, 142, 5, 221, 46, 140, 176, 143, 0, 73, 125, 192, 79, 177, 195, 11, 76, 4, 206, 117, 235, 60, 144, 225, 5, 16, 141, 101, 159, 162, 85, 100, 186, 215, 28, 36, 82, 189, 95, 252, 193, 101, 217, 125, 214, 165, 158, 246, 156, 0, 26, 5, 144, 62, 45, 177, 234, 73, 223, 105, 248, 243, 54, 43, 159, 230, 252, 157, 17, 59, 64, 151, 106, 67, 42, 136, 149, 234, 16, 7, 125, 47, 125, 229, 188, 11, 60, 33, 126, 44, 63, 246, 101, 239, 24, 3, 255, 85, 131, 53, 195, 78, 80, 153, 223, 139, 121, 146, 16, 132 }, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "datasolutions", "", null, 0, 5, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false });
+                values: new object[] { new Guid("daeec15f-190e-4506-a08b-58fb1ff49989"), "", "admin@milsat.com", "Admin", 0, new byte[] { 2, 148, 255, 110, 201, 179, 164, 42, 77, 140, 192, 161, 179, 181, 101, 94, 45, 212, 219, 92, 65, 146, 50, 229, 63, 22, 242, 234, 47, 89, 218, 246, 233, 92, 31, 171, 178, 173, 121, 38, 233, 222, 6, 84, 234, 174, 39, 226, 172, 86, 14, 88, 219, 134, 152, 24, 154, 132, 127, 149, 56, 26, 218, 64 }, null, new byte[] { 112, 63, 197, 224, 32, 79, 112, 241, 125, 38, 96, 22, 240, 38, 76, 159, 74, 186, 225, 125, 112, 77, 108, 236, 255, 242, 30, 158, 209, 88, 31, 158, 161, 63, 193, 15, 112, 26, 12, 250, 26, 157, 188, 93, 83, 139, 21, 151, 79, 36, 11, 207, 229, 106, 142, 78, 115, 157, 101, 168, 54, 119, 51, 4, 27, 13, 23, 107, 15, 106, 173, 66, 18, 5, 100, 5, 166, 41, 233, 91, 7, 62, 14, 120, 224, 11, 15, 238, 159, 28, 48, 181, 250, 216, 230, 123, 196, 57, 111, 27, 214, 9, 144, 192, 157, 76, 195, 247, 122, 29, 64, 126, 43, 247, 97, 124, 219, 12, 75, 213, 157, 246, 2, 195, 49, 89, 225, 221 }, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "datasolutions", "", null, 0, 5, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false });
 
             migrationBuilder.CreateIndex(
                 name: "IX_IMS_InternId",
@@ -177,6 +176,18 @@ namespace MilsatIMS.Migrations
                 name: "IX_IMS_SessionId",
                 table: "IMS",
                 column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Intern_UserId",
+                table: "Intern",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Mentor_UserId",
+                table: "Mentor",
+                column: "UserId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

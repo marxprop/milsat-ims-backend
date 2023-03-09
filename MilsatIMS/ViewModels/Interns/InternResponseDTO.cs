@@ -14,7 +14,7 @@ namespace MilsatIMS.ViewModels.Interns
         public string Institution { get; set; }
         public GenderType Gender { get; set; }
         public MentorMiniDTO? Mentor { get; set; } 
-        public int Year { get; set; }
+        public Guid SessionId { get; set; }
         public string Bio { get; set; }
         public string ProfilePicture { get; set; }
     }

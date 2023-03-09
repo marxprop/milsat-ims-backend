@@ -7,6 +7,7 @@ namespace MilsatIMS.Models
     public class Intern
     {
         [Key]
+        public Guid InternId { get; set; }
         public Guid UserId { get; set; }
         public User User { get; set; }
         [Required]
@@ -16,6 +17,7 @@ namespace MilsatIMS.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int Year { get; set; } = DateTime.UtcNow.Year;
         public List<InternMentorSession> IMS { get; set; }
+
         //public Guid? MentorId { get; set; }
         //[ForeignKey("MentorId")]
         //public Mentor? Mentor { get; set; }

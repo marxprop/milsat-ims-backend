@@ -31,13 +31,14 @@ namespace MilsatIMS.Controllers
         /// <summary>
         /// Get all the interns in the system
         /// </summary>
+        /// <param name="sessionid"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet, Authorize]
-        public async Task<ActionResult<List<InternResponseDTO>>> GetIntern(int pageNumber = 1, int pageSize = 15)
+        public async Task<ActionResult<List<InternResponseDTO>>> GetIntern(Guid? sessionid, int pageNumber = 1, int pageSize = 15)
         {
-            var result = await _internService.GetAllInterns(pageNumber, pageSize);
+            var result = await _internService.GetAllInterns(sessionid, pageNumber, pageSize);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -49,15 +50,16 @@ namespace MilsatIMS.Controllers
         /// Search for an intern in the system using id, name or team
         /// </summary>
         /// <param name="model"></param>
+        /// <param name="sessionid"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("search"), Authorize]
         public async Task<ActionResult<List<InternResponseDTO>>> FilterIntern(
-            [FromQuery] GetInternVm model,
+            [FromQuery] GetInternVm model, Guid? sessionid,
             int pageNumber = 1, int pageSize = 15)
         {
-            var result = await _internService.FilterInterns(model, pageNumber, pageSize);
+            var result = await _internService.FilterInterns(model, sessionid, pageNumber, pageSize);
             if (!result.Successful)
             {
                 return BadRequest(result);
@@ -68,12 +70,13 @@ namespace MilsatIMS.Controllers
         /// <summary>
         /// Get an intern by id
         /// </summary>
+        /// <param name="sessionid"></param>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}"), Authorize]
-        public async Task<ActionResult<List<InternResponseDTO>>> GetIntern(Guid id)
+        public async Task<ActionResult<List<InternResponseDTO>>> GetIntern(Guid? sessionid, Guid id)
         {
-            var result = await _internService.GetInternById(id);
+            var result = await _internService.GetInternById(sessionid, id);
             if (!result.Successful)
             {
                 return BadRequest(result);

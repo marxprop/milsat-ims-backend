@@ -61,15 +61,11 @@ namespace MilsatIMS.Services
 
                 var newIntern = new Intern 
                 { 
-                    UserId = newUser.UserId,
                     CourseOfStudy = request.CourseOfStudy,
                     Institution = request.Institution,
                 };
 
-                var ims = new InternMentorSession
-                {
-                    InternId = newIntern.UserId,
-                };
+                var ims = new InternMentorSession { };
 
                 var selectedMentor = await SelectMentor(newUser.Team);
                 if (selectedMentor != null)
@@ -88,20 +84,22 @@ namespace MilsatIMS.Services
                     };
                 }
 
-                ims.SessionId = session.SessionId;
-
                 await _userRepo.AddAsync(newUser);
-                newIntern.UserId = newUser.UserId;
 
+                newIntern.UserId = newUser.UserId;
                 await _internRepo.AddAsync(newIntern);
+
+                ims.InternId = newIntern.InternId;
+                ims.SessionId = session.SessionId;
                 await _imsRepo.AddAsync(ims);
 
                 //Crete response body
-                var newInterns = InternResponseData( newUser , selectedMentor);
+                var newInterns = InternResponseData( newUser , selectedMentor, session.SessionId);
                 return new GenericResponse<InternResponseDTO>
                 {
                     Successful = true,
                     ResponseCode = ResponseCode.Successful,
+                    Message = "Intern has been created successfully",
                     Data = newInterns
                 };
             }
@@ -111,7 +109,8 @@ namespace MilsatIMS.Services
                 return new GenericResponse<InternResponseDTO>
                 { 
                     Successful = false,
-                    ResponseCode = ResponseCode.EXCEPTION_ERROR
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while creating intern"
                 };
             }
         }
@@ -130,205 +129,325 @@ namespace MilsatIMS.Services
             return null;
         }
 
-        //public async Task<GenericResponse<List<InternResponseDTO>>> GetAllInterns(int pageNumber, int pageSize)
-        //{
-        //    _logger.LogInformation($"Received a request to fetch paginated Intern(s): Request: pageNumber:{pageNumber}, pageSize:{pageSize}");
-        //    try
-        //    {
-        //        var pagedData = await _userRepo.GetAll()
-        //            .Include(x => x.Intern).ThenInclude(x => x.Mentor.User)
-        //            .Where(x => x.Role == RoleType.Intern)
-        //            .Skip((pageNumber - 1) * pageSize)
-        //            .Take(pageSize)
-        //            .ToListAsync();
+        public async Task<Guid?> CheckSession(Guid? sessionId)
+        {
+            if (sessionId == null)
+            {
+                var _currentSession = await _sessionRepo.GetAll().Where(x => x.Status == Status.Current).SingleOrDefaultAsync();
+                var id = _currentSession?.SessionId;
+                return id;
+            }
+            else
+            {
+                var _currentSession = await _sessionRepo.GetAll().Where(x => x.SessionId == sessionId).SingleOrDefaultAsync();
+                var id = _currentSession?.SessionId;
+                return id;
+            }
+        }
 
-        //        var interns = InternResponseData(pagedData);
-        //        return new GenericResponse<List<InternResponseDTO>>
-        //        {
-        //            Successful = true,
-        //            ResponseCode = ResponseCode.Successful,
-        //            Data = interns
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Exception occured while Fecthing Data Request. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<List<InternResponseDTO>>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR
-        //        };
-        //    }
-        //}
-
-        //public async Task<GenericResponse<List<InternResponseDTO>>> GetInternById(Guid id)
-        //{
-        //    _logger.LogInformation($"Received a request to fetch an Intern: Request(user id):{id}");
-        //    try
-        //    {
-        //        var user = await _userRepo.GetAll()
-        //            //.Include(x => x.Intern).ThenInclude(x => x.Mentor.User)
-        //            .Where(x => x.UserId == id).SingleOrDefaultAsync();
-        //        if (user == null)
-        //        {
-        //            return new GenericResponse<List<InternResponseDTO>>
-        //            {
-        //                Successful = false,
-        //                ResponseCode = ResponseCode.NotFound
-        //            };
-        //        }
-        //        return new GenericResponse<List<InternResponseDTO>>
-        //        {
-        //            Successful = true,
-        //            ResponseCode = ResponseCode.Successful,
-        //            Data = InternResponseData(new List<User> { user })
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error occured while Fetching Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<List<InternResponseDTO>>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR
-        //        };
-        //    }
-
-        //}
-
-        //public async Task<GenericResponse<List<InternResponseDTO>>> FilterInterns(GetInternVm vm, int pageNumber, int pageSize)
-        //{
-        //    _logger.LogInformation($"Received a request to Fetch Intern(s): Request:{JsonConvert.SerializeObject(vm)}");
-        //    try
-        //    {
-        //        var filtered = await _userRepo.GetAll().Include(e => e.Intern).ThenInclude(e => e.Mentor.User)
-        //                                         .Where(x => x.Role == RoleType.Intern &&
-        //                                                (vm.name == null || x.FullName.Contains(vm.name)
-        //                                                && vm.Team == null || x.Team == vm.Team))
-        //                                         .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-        //        var users = InternResponseData(filtered);
-        //        return new GenericResponse<List<InternResponseDTO>>
-        //        {
-        //            Successful = true,
-        //            ResponseCode = ResponseCode.Successful,
-        //            Data = users
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Exception occured while Fecthing Data Request. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<List<InternResponseDTO>>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR
-        //        };
-        //    }
-        //}
-
-
-        //public async Task<GenericResponse<InternResponseDTO>> UpdateIntern(UpdateInternVm vm)
-        //{
-        //    _logger.LogInformation($"Received a request to update Intern: Request:{JsonConvert.SerializeObject(vm)}");
-        //    try
-        //    {
-        //        var user = await _userRepo.GetAll()
-        //            .Include(x => x.Intern)
-        //            .Where(x => x.UserId == vm.UserId)
-        //            .FirstOrDefaultAsync();
-
-        //        if (user == null)
-        //        {
-        //            return new GenericResponse<InternResponseDTO>
-        //            {
-        //                Successful = false,
-        //                ResponseCode = ResponseCode.NotFound
-        //            };
-        //        }
-
-        //        user.Team = vm.Team;
-        //        user.FullName = vm.FullName;
-        //        user.Email = vm.Email;
-        //        user.PhoneNumber = vm.PhoneNumber;
-
-        //        if (vm.MentorId != Guid.Empty)
-        //        {
-        //            var selectedMentor = await _userRepo.GetAll().Where(x => x.UserId == vm.MentorId
-        //                                                                && x.Team == vm.Team
-        //                                                                && x.Role == RoleType.Mentor)
-        //                                                                .FirstOrDefaultAsync();
-        //            if (selectedMentor == null)
-        //            {
-        //                return new GenericResponse<InternResponseDTO>
-        //                {
-        //                    Successful = false,
-        //                    ResponseCode = ResponseCode.NotFound,
-        //                    Message = "No Mentor with this Id was found"
-        //                };
-        //            }
-
-        //            user.Intern.MentorId = selectedMentor.UserId;
-        //            await _userRepo.UpdateAsync(user);
-        //            return new GenericResponse<InternResponseDTO>
-        //            {
-        //                Successful = true,
-        //                ResponseCode = ResponseCode.Successful,
-        //                Data = InternResponseData(user, selectedMentor)
-        //            };
-        //        }
-        //        else
-        //        {
-        //            Mentor? selectedMentor = null;
-        //            user.Intern.MentorId = null;
-        //            await _userRepo.UpdateAsync(user);
-        //            return new GenericResponse<InternResponseDTO>
-        //            {
-        //                Successful = true,
-        //                ResponseCode = ResponseCode.Successful,
-        //                Data = InternResponseData(user, selectedMentor)
-        //            };
-        //        }
-
+        public async Task<GenericResponse<List<InternResponseDTO>>> GetAllInterns(Guid? sessionId, int pageNumber, int pageSize)
+        {
+            _logger.LogInformation($"Received a request to fetch paginated Intern(s): Request: pageNumber:{pageNumber}, pageSize:{pageSize}");
+            try
+            {
+                var _sessionId = await CheckSession(sessionId);
+                if (_sessionId==null) 
+                    return new GenericResponse<List<InternResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
                 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error occured while updating intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<InternResponseDTO>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR
-        //        };
-        //    }
-        //}
+                var pagedData = await _imsRepo.GetAll()
+                    .Include(ims => ims.Intern)
+                        .ThenInclude(intern => intern.User)
+                    .Include(ims => ims.Mentor)
+                        .ThenInclude(mentor => mentor.User)
+                    .Where(ims => ims.SessionId == _sessionId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(ims => new InternResponseDTO
+                    {
+                        UserId = ims.Intern.User.UserId,
+                        Email = ims.Intern.User.Email,
+                        PhoneNumber = ims.Intern.User.PhoneNumber,
+                        FullName = ims.Intern.User.FullName,
+                        Team = ims.Intern.User.Team,
+                        CourseOfStudy = ims.Intern.CourseOfStudy,
+                        Institution = ims.Intern.Institution,
+                        Gender = ims.Intern.User.Gender,
+                        SessionId = ims.SessionId,
+                        Bio = ims.Intern.User.Bio,
+                        ProfilePicture = ims.Intern.User.ProfilePicture,
+                        Mentor = new MentorMiniDTO
+                        {
+                            MentorId = ims.Mentor.User.UserId,
+                            FullName = ims.Mentor.User.FullName
+                        }
+                    })
+                    .ToListAsync();
 
-        //public List<InternResponseDTO> InternResponseData(List<User> source)
-        //{
-        //    List<InternResponseDTO> interns = new();
-        //    foreach (var user in source)
-        //    {
-        //        var attachedMentor = new MentorMiniDTO { MentorId = user.Intern.MentorId, FullName = user.Intern.Mentor?.User?.FullName };
+                return new GenericResponse<List<InternResponseDTO>>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Successfully fetched all interns",
+                    Data = pagedData
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception occured while Fecthing Data Request. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<List<InternResponseDTO>>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR
+                };
+            }
+        }
 
-        //        string profilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], user.ProfilePicture);
-        //        interns.Add(new InternResponseDTO
-        //        {
-        //            UserId = user.UserId,
-        //            Email = user.Email,
-        //            FullName = user.FullName,
-        //            PhoneNumber = user.PhoneNumber,
-        //            Team = user.Team,
-        //            CourseOfStudy = user.Intern.CourseOfStudy,
-        //            Institution = user.Intern.Institution,
-        //            Gender = user.Gender,
-        //            Year = user.Intern.Year,
-        //            Bio = user.Bio,
-        //            ProfilePicture = profilePicture, 
-        //            Mentor = attachedMentor,
-        //        });
-        //    };
-        //    return interns;
-        //}
+        public async Task<GenericResponse<List<InternResponseDTO>>> GetInternById(Guid? sessionid, Guid id)
+        {
+            _logger.LogInformation($"Received a request to fetch an Intern: Request(user id):{id}");
+            try
+            {
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<List<InternResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
 
-        public InternResponseDTO InternResponseData(User user, Mentor? mentor)
+                var user = await _imsRepo.GetAll()
+                   .Include(ims => ims.Intern)
+                       .ThenInclude(intern => intern.User)
+                   .Include(ims => ims.Mentor)
+                       .ThenInclude(mentor => mentor.User)
+                   .Where(ims => ims.SessionId == _sessionId && ims.Intern.UserId == id)
+                   .Select(ims => new InternResponseDTO
+                   {
+                       UserId = ims.Intern.User.UserId,
+                       Email = ims.Intern.User.Email,
+                       PhoneNumber = ims.Intern.User.PhoneNumber,
+                       FullName = ims.Intern.User.FullName,
+                       Team = ims.Intern.User.Team,
+                       CourseOfStudy = ims.Intern.CourseOfStudy,
+                       Institution = ims.Intern.Institution,
+                       Gender = ims.Intern.User.Gender,
+                       SessionId = ims.SessionId,
+                       Bio = ims.Intern.User.Bio,
+                       ProfilePicture = ims.Intern.User.ProfilePicture,
+                       Mentor = new MentorMiniDTO
+                       {
+                           MentorId = ims.Mentor.User.UserId,
+                           FullName = ims.Mentor.User.FullName
+                       }
+                   })
+                   .ToListAsync();
+
+                if (user == null)
+                {
+                    return new GenericResponse<List<InternResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "Intern not found"
+                    };
+                }
+                return new GenericResponse<List<InternResponseDTO>>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Successfully found intern by id",
+                    Data = user
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while Fetching Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<List<InternResponseDTO>>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while fetching intern with id"
+                };
+            }
+
+        }
+
+        public async Task<GenericResponse<List<InternResponseDTO>>> FilterInterns(GetInternVm vm, Guid? sessionid, int pageNumber, int pageSize)
+        {
+            _logger.LogInformation($"Received a request to Fetch Intern(s): Request:{JsonConvert.SerializeObject(vm)}");
+            try
+            {
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<List<InternResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
+
+                var users = await _imsRepo.GetAll()
+                   .Include(ims => ims.Intern)
+                       .ThenInclude(intern => intern.User)
+                   .Include(ims => ims.Mentor)
+                       .ThenInclude(mentor => mentor.User)
+                   .Where(ims => ims.SessionId == _sessionId &&
+                         (ims.Intern.User.Role == RoleType.Intern)
+                         && (vm.name == null || ims.Intern.User.FullName.Contains(vm.name))
+                         && (vm.Team == null || ims.Intern.User.Team == vm.Team))
+                   .Skip((pageNumber - 1) * pageSize).Take(pageSize)
+                   .Select(ims => new InternResponseDTO
+                   {
+                       UserId = ims.Intern.User.UserId,
+                       Email = ims.Intern.User.Email,
+                       PhoneNumber = ims.Intern.User.PhoneNumber,
+                       FullName = ims.Intern.User.FullName,
+                       Team = ims.Intern.User.Team,
+                       CourseOfStudy = ims.Intern.CourseOfStudy,
+                       Institution = ims.Intern.Institution,
+                       Gender = ims.Intern.User.Gender,
+                       SessionId = ims.SessionId,
+                       Bio = ims.Intern.User.Bio,
+                       ProfilePicture = ims.Intern.User.ProfilePicture,
+                       Mentor = new MentorMiniDTO
+                       {
+                           MentorId = ims.Mentor.User.UserId,
+                           FullName = ims.Mentor.User.FullName
+                       }
+                   }).ToListAsync();
+                return new GenericResponse<List<InternResponseDTO>>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Successfully filtered interns",
+                    Data = users
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception occured while Fecthing Data Request. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<List<InternResponseDTO>>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while fetching data request"
+                };
+            }
+        }
+
+
+        public async Task<GenericResponse<InternResponseDTO>> UpdateIntern(UpdateInternVm vm)
+        {
+            _logger.LogInformation($"Received a request to update Intern: Request:{JsonConvert.SerializeObject(vm)}");
+            try
+            {
+                var _sessionId = await CheckSession(null);
+                if (_sessionId == null)
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "You can not update when there is no ongoing session"
+                    };
+
+                Guid _currentSessionId = (Guid)_sessionId;
+
+                var user = await _userRepo.GetAll()
+                    .Include(x => x.Intern)
+                    .Where(x => x.UserId == vm.UserId && x.Role == RoleType.Intern)
+                    .FirstOrDefaultAsync();
+
+
+                if (user == null)
+                {
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "The user you are trying to update was not found"
+                    };
+                }
+
+                var ims = await _imsRepo.GetAll().Where(ims => ims.InternId == user.Intern.InternId && ims.SessionId == _currentSessionId).FirstOrDefaultAsync();
+                if (ims == null)
+                {
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "Something is not right about your update request"
+                    };
+                }
+
+                user.Team = vm.Team;
+                user.FullName = vm.FullName;
+                user.Email = vm.Email;
+                user.PhoneNumber = vm.PhoneNumber;
+
+                if (vm.MentorId != Guid.Empty)
+                {
+                    var selectedMentor = await _userRepo.GetAll().Include(x => x.Mentor)
+                                                                 .Where(x => x.UserId == vm.MentorId
+                                                                 && x.Team == vm.Team
+                                                                 && x.Role == RoleType.Mentor)
+                                                                 .FirstOrDefaultAsync();
+                    if (selectedMentor == null)
+                    {
+                        return new GenericResponse<InternResponseDTO>
+                        {
+                            Successful = false,
+                            ResponseCode = ResponseCode.NotFound,
+                            Message = "No Mentor with this Id was found"
+                        };
+                    }
+
+
+                    ims.MentorId = selectedMentor.Mentor.MentorId;
+
+                    await _userRepo.UpdateAsync(user);
+                    await _imsRepo.UpdateAsync(ims);
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = true,
+                        ResponseCode = ResponseCode.Successful,
+                        Data = InternResponseData(user, selectedMentor, _currentSessionId)
+                    };
+                }
+                else
+                {
+                    Mentor? selectedMentor = null;
+                    ims.MentorId = null;
+                    await _userRepo.UpdateAsync(user);
+                    await _imsRepo.UpdateAsync(ims);
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = true,
+                        ResponseCode = ResponseCode.Successful,
+                        Data = InternResponseData(user, selectedMentor, _currentSessionId)
+                    };
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while updating intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<InternResponseDTO>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while updating intern."
+                };
+            }
+        }
+
+        public InternResponseDTO InternResponseData(User user, Mentor? mentor, Guid sessionId)
         {
             var attachedMentor = new MentorMiniDTO { };
             if (mentor != null)
@@ -351,7 +470,7 @@ namespace MilsatIMS.Services
                 CourseOfStudy = user.Intern.CourseOfStudy,
                 Institution = user.Intern.Institution,
                 Gender = user.Gender,
-                Year = user.Intern.Year,
+                SessionId = sessionId,
                 Bio = user.Bio,
                 ProfilePicture = profilePicture,
                 Mentor = attachedMentor,
@@ -359,7 +478,7 @@ namespace MilsatIMS.Services
             return intern;
         }
 
-        public InternResponseDTO InternResponseData(User user, User mentor)
+        public InternResponseDTO InternResponseData(User user, User? mentor, Guid sessionId)
         {
             var attachedMentor = new MentorMiniDTO { };
             if (mentor != null)
@@ -382,33 +501,12 @@ namespace MilsatIMS.Services
                 CourseOfStudy = user.Intern.CourseOfStudy,
                 Institution = user.Intern.Institution,
                 Gender = user.Gender,
-                Year = user.Intern.Year,
+                SessionId = sessionId,
                 Bio = user.Bio,
                 ProfilePicture = profilePicture,
                 Mentor = attachedMentor,
             };
             return intern;
         }
-
-        public Task<GenericResponse<List<InternResponseDTO>>> GetAllInterns(int pageNumber, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<GenericResponse<List<InternResponseDTO>>> FilterInterns(GetInternVm vm, int pageNumber, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<GenericResponse<List<InternResponseDTO>>> GetInternById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<GenericResponse<InternResponseDTO>> UpdateIntern(UpdateInternVm vm)
-        {
-            throw new NotImplementedException();
-        }
     }
-
 }
