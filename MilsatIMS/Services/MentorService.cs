@@ -94,11 +94,12 @@ namespace MilsatIMS.Services
                 singleMentor.UserId = newUser.UserId;
                 await _mentorRepo.AddAsync(singleMentor);
 
-                var newMentors = MentorResponseData(newUser, new List<Intern>{});
+                var newMentors = MentorResponseData(newUser, new List<Intern>{}, (Guid)_sessionId);
                 return new GenericResponse<MentorResponseDTO>
                 {
                     Successful = true,
                     ResponseCode = ResponseCode.Successful,
+                    Message = "Mentor has been successfully created.",
                     Data = newMentors
                 };
             }
@@ -357,7 +358,7 @@ namespace MilsatIMS.Services
             return allMentors;
         }
 
-        public MentorResponseDTO MentorResponseData(User mentor, List<Intern> interns)
+        public MentorResponseDTO MentorResponseData(User mentor, List<Intern> interns, Guid sessionid)
         {
             var internsdto = AssignedIntern(interns);
             var mentordto = new MentorResponseDTO
@@ -370,7 +371,8 @@ namespace MilsatIMS.Services
                 Gender = mentor.Gender,
                 Bio = mentor.Bio,
                 ProfilePicture = Utils.GetUserPicture(_iconfig["ProfilePicturesPath"], mentor.ProfilePicture),
-                Interns = internsdto
+                Interns = internsdto,
+                SessionId = sessionid
             };
             return mentordto;
         }
