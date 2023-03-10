@@ -10,8 +10,8 @@ namespace MilsatIMS.Models
         public Guid InternId { get; set; }
         public Guid UserId { get; set; }
         public User User { get; set; }
-        public string CourseOfStudy { get; set; }
-        public string Institution { get; set; }
+        public string CourseOfStudy { get; set; } = string.Empty;
+        public string Institution { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int Year { get; set; } = DateTime.UtcNow.Year;
         public List<InternMentorSession> IMS { get; set; }
