@@ -71,14 +71,30 @@ namespace MilsatIMS.Controllers
 
 
         /// <summary>
-        /// Update user's profile information
+        /// Update an intern's user profile information
         /// </summary>
         /// <param name="vm"></param>
         /// <returns></returns>
-        [HttpPut("modify"), Authorize]
-        public async Task<ActionResult<List<UserResponseDTO>>> UpdateUserProfile([FromForm] UpdateUserVm vm)
+        [HttpPut("intern/modify"), Authorize]
+        public async Task<ActionResult<List<UserResponseDTO>>> UpdateInternProfile([FromForm] UpdateInternVm vm)
         {
-            var result = await _userService.UpdateProfile(vm);
+            var result = await _userService.UpdateInternProfile(vm);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Update a mentor's user profile information
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <returns></returns>
+        [HttpPut("mentor/modify"), Authorize]
+        public async Task<ActionResult<List<UserResponseDTO>>> UpdateMentorProfile([FromForm] UpdateMentorVm vm)
+        {
+            var result = await _userService.UpdateMentorProfile(vm);
             if (!result.Successful)
             {
                 return BadRequest(result);

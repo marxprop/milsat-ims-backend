@@ -14,10 +14,6 @@ namespace MilsatIMS.ViewModels.Interns
         [Required]
         public GenderType Gender { get; set; }
         [Required]
-        public string CourseOfStudy { get; set; }
-        [Required]
-        public string Institution { get; set; }
-        [Required]
         public string PhoneNumber { get; set; }
         [Required]
         public TeamType Team { get; set; }

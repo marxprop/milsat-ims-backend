@@ -61,8 +61,6 @@ namespace MilsatIMS.Services
 
                 var newIntern = new Intern 
                 { 
-                    CourseOfStudy = request.CourseOfStudy,
-                    Institution = request.Institution,
                 };
 
                 var ims = new InternMentorSession { };

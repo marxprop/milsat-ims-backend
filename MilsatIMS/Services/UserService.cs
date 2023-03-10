@@ -14,6 +14,7 @@ namespace MilsatIMS.Services
     public class UserService : IUserService
     {
         private readonly IAsyncRepository<User> _userRepo;
+        private readonly IAsyncRepository<Intern> _internRepo;
         private readonly ILogger<InternService> _logger;
         private readonly IConfiguration _iconfig;
         private readonly IHttpContextAccessor _httpContext;
@@ -21,7 +22,7 @@ namespace MilsatIMS.Services
         private readonly IAsyncRepository<InternMentorSession> _imsRepo;
 
         public UserService(IConfiguration iconfig, IAsyncRepository<Session> sessionRepo, IAsyncRepository<InternMentorSession> imsRepo,
-            ILogger<InternService> logger, IAsyncRepository<User> userRepo, IHttpContextAccessor httpContext)
+            ILogger<InternService> logger, IAsyncRepository<User> userRepo, IHttpContextAccessor httpContext, IAsyncRepository<Intern> internRepo)
         {
             _logger = logger;
             _userRepo = userRepo;
@@ -29,6 +30,7 @@ namespace MilsatIMS.Services
             _httpContext = httpContext;
             _sessionRepo = sessionRepo;
             _imsRepo = imsRepo;
+            _internRepo = internRepo;
         }
 
         public async Task<Guid?> CheckSession(Guid? sessionId)
@@ -171,7 +173,7 @@ namespace MilsatIMS.Services
         }
 
 
-        public async Task<GenericResponse<UserResponseDTO>> UpdateProfile([FromForm] UpdateUserVm vm)
+        public async Task<GenericResponse<UserResponseDTO>> UpdateInternProfile([FromForm] UpdateInternVm vm)
         {
             _logger.LogInformation($"Received to update user profile: Request:{JsonConvert.SerializeObject(vm)}");
             try
@@ -221,6 +223,106 @@ namespace MilsatIMS.Services
                     if (String.IsNullOrEmpty(fileName))
                     {
                         fileName = Path.GetRandomFileName(); 
+                    }
+                    Directory.CreateDirectory(_iconfig["ProfilePicturesPath"]);
+                    var filePath = Path.Combine(_iconfig["ProfilePicturesPath"], fileName);
+
+                    using (var stream = File.Create(filePath))
+                    {
+                        await vm.ProfilePicture.CopyToAsync(stream);
+                    }
+                    user.ProfilePicture = fileName;
+                }
+
+                user.Bio = vm.Bio;
+
+                var intern = await _internRepo.GetAll()
+                    .Include(x => x.IMS.Where(y => y.SessionId == _sessionId))
+                    .Where(i => i.UserId == user.UserId).FirstOrDefaultAsync();
+
+                if (intern == null)
+                {
+                    return new GenericResponse<UserResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "Intern was not found"
+                    };
+                }
+
+                intern.CourseOfStudy = vm.CourseOfStudy;
+                intern.Institution = vm.Institution;
+                await _userRepo.UpdateAsync(user);
+                await _internRepo.UpdateAsync(intern);
+
+                return new GenericResponse<UserResponseDTO>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Update is Successful"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while updating user profile. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<UserResponseDTO>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR
+                };
+            }
+        }
+
+        public async Task<GenericResponse<UserResponseDTO>> UpdateMentorProfile([FromForm] UpdateMentorVm vm)
+        {
+            _logger.LogInformation($"Received to update user profile: Request:{JsonConvert.SerializeObject(vm)}");
+            try
+            {
+
+                var _sessionId = await CheckSession(null);
+                if (_sessionId == null)
+                    return new GenericResponse<UserResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "You can not update when there is no ongoing session"
+                    };
+
+                var user_claim = _httpContext?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
+                if (user_claim == null)
+                {
+                    return new GenericResponse<UserResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                        Message = "Error occured while authenticating user"
+                    };
+                }
+
+                Guid user_id;
+                Guid.TryParse(user_claim.Value, out user_id);
+
+                var user = await _userRepo.GetAll()
+                    .Include(x => x.Intern.IMS.Where(y => y.SessionId == user_id))
+                    .Include(x => x.Mentor.IMS.Where(y => y.SessionId == user_id))
+                    .Where(x => x.UserId == user_id).FirstOrDefaultAsync(); ;
+
+                if (user == null)
+                {
+                    return new GenericResponse<UserResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "Unsuccessful update."
+                    };
+                }
+
+                if (vm.ProfilePicture.Length > 0)
+                {
+                    var fileName = user.ProfilePicture;
+                    if (String.IsNullOrEmpty(fileName))
+                    {
+                        fileName = Path.GetRandomFileName();
                     }
                     Directory.CreateDirectory(_iconfig["ProfilePicturesPath"]);
                     var filePath = Path.Combine(_iconfig["ProfilePicturesPath"], fileName);
