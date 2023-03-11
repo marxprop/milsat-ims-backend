@@ -1,8 +1,8 @@
 ﻿using MilsatIMS.Enums;
 
-namespace MilsatIMS.ViewModels.Report
+namespace MilsatIMS.ViewModels.Reports.ReportSubmission
 {
-    public class ReportVm
+    public class CreateReportSubmissionVm
     {
         public BlockerType BlockerType { get; set; }
         public BlockerOrigin BlockerOrigin { get; set; }

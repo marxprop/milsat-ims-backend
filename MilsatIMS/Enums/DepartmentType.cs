@@ -3,7 +3,7 @@
 namespace MilsatIMS.Enums
 {
     /// <summary>
-    /// 0=Backend, 1=Branding, 2=Community, 3=Frontend, 4=Mobile, 5=Staff, 6=UI/UX
+    /// 0=Backend, 1=Branding, 2=Community, 3=Frontend, 4=Mobile, 5=Staff, 6=UI/UX, 7=None
     /// </summary>
     public enum TeamType
     {
@@ -20,6 +20,8 @@ namespace MilsatIMS.Enums
         [Description("Staff")]
         Staff,
         [Description("UIUX")]
-        UIUX
+        UIUX,
+        [Description("None")]
+        None
     }
 }

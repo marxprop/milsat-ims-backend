@@ -9,6 +9,7 @@ namespace MilsatIMS.Interfaces
         Task<List<T>> GetTableByOrder(Expression<Func<T, object>> orderBy = null);
         Task<T> UpdateAsync(T entity, T entityFromDatabase = null, bool saveChanges = true);
         Task UpdateRangeAsync(IEnumerable<T> entities);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
         Task DeleteAsync(T entity);
         Task<T> GetByIdAsync(Guid id);
         IQueryable<T> GetAll();

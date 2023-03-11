@@ -23,6 +23,10 @@ namespace MilsatIMS.Data
         public DbSet<Prompt> Prompt { get; set; }
         public DbSet<Session> Session { get; set; }
         public DbSet<InternMentorSession> IMS { get; set; }
+        public DbSet<Report> Report { get; set; }
+        public DbSet<ReportSubmission> ReportSubmission { get; set; }
+        public DbSet<ReportFeedback> ReportFeedback { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().HasQueryFilter(b => !b.isDeleted);
@@ -52,10 +56,26 @@ namespace MilsatIMS.Data
                 .WithMany(s => s.IMS)
                 .HasForeignKey(ims => ims.SessionId);
 
-            //modelBuilder.Entity<Intern>()
-            //    .HasOne(e => e.Mentor)
-            //    .WithMany(e => e.Interns)
-            //    .OnDelete(DeleteBehavior.ClientSetNull);
+            modelBuilder.Entity<Report>()
+                .HasMany(r => r.Submissions)
+                .WithOne(r => r.Report)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Session)
+                .WithOne(r => r.Report);
+
+            modelBuilder.Entity<ReportSubmission>()
+                .HasOne(r => r.Intern)
+                .WithMany(r => r.ReportSubmissions);
+
+            modelBuilder.Entity<ReportSubmission>()
+                .HasOne(r => r.ReportFeedback)
+                .WithOne(r => r.ReportSubmission);
+
+            modelBuilder.Entity<ReportFeedback>()
+                .HasOne(r => r.Mentor)
+                .WithMany(r => r.ReportFeedbacks);
 
             var all = createUsers();
             modelBuilder.Entity<User>()

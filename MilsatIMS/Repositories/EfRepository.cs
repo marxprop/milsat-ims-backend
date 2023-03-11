@@ -83,5 +83,10 @@ namespace MilsatIMS.Repositories
             }
             return 0;
         }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbContext.Set<T>().AnyAsync(predicate);
+        }
     }
 }

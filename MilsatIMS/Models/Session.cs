@@ -14,6 +14,7 @@ namespace MilsatIMS.Models
         public DateTime StartDate { get; set; } = DateTime.UtcNow;
         public DateTime?  EndDate { get; set; }
         public List<InternMentorSession> IMS { get; set; }
+        public Report Report { get; set; }
 
     }
 }

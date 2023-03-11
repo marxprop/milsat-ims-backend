@@ -59,6 +59,8 @@ try
         options.OperationFilter<SecurityRequirementsOperationFilter>();
         var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+        //options.ExampleFilters();
     });
 
     builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
@@ -70,7 +72,7 @@ try
     builder.Services.AddScoped<IStatsService, StatsService>();
     builder.Services.AddScoped<IPromptService, PromptService>();
     builder.Services.AddScoped<IActivityService, ActivityService>();
-    builder.Services.AddScoped<IActivityService, ActivityService>();
+    builder.Services.AddScoped<IReportService, ReportService>();
     builder.Services.AddScoped<ISessionService, SessionService>();
 
     builder.Services.AddCors(options => options.AddPolicy(name: "NgOrigins",

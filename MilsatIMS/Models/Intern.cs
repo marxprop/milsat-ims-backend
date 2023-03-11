@@ -15,6 +15,7 @@ namespace MilsatIMS.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int Year { get; set; } = DateTime.UtcNow.Year;
         public List<InternMentorSession> IMS { get; set; }
+        public List<ReportSubmission> ReportSubmissions { get; set; }
 
         //public Guid? MentorId { get; set; }
         //[ForeignKey("MentorId")]
