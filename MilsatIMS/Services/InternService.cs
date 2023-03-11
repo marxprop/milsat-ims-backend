@@ -383,7 +383,17 @@ namespace MilsatIMS.Services
                     };
                 }
 
+                if (vm.Team != user.Team && vm.MentorId != Guid.Empty)
+                {
+                    return new GenericResponse<InternResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
+                        Message = "A new mentor in the same team must be attached when changing an intern's team"
+                    };
+                }
                 user.Team = vm.Team;
+
                 user.FullName = vm.FullName;
                 user.Email = vm.Email;
                 user.PhoneNumber = vm.PhoneNumber;

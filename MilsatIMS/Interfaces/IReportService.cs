@@ -9,6 +9,6 @@ namespace MilsatIMS.Interfaces
         Task<GenericResponse<ReportResponseDTO>> CreateReport(CreateReportVm vm);
         Task<GenericResponse<ReportResponseDTO>> GetReportById(Guid? sessionid, Guid id);
         Task<GenericResponse<List<ReportResponseDTO>>> GetAllReports(Guid? sessionid);
-        Task<GenericResponse<ReportResponseDTO>> UpdateReport(Guid? sessionid, UpdateReportVm vm);
+        Task<GenericResponse<ReportResponseDTO>> UpdateReport(UpdateReportVm vm);
     }
 }

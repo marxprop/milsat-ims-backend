@@ -52,7 +52,7 @@ namespace MilsatIMS.Services
                 {
                     Successful = false,
                     ResponseCode = ResponseCode.NotFound,
-                    Message = "There is no ongoing session or sessionId does not exist"
+                    Message = "There is no ongoing session"
                 };
 
             var latestReport = await _reportRepo.GetAll().Where(x => x.SessionId == _sessionId)
@@ -99,6 +99,18 @@ namespace MilsatIMS.Services
                     };
                 }
 
+                var report = new Report { DueDate = parsedDueDate, SessionId = (Guid)_sessionId };
+
+                if (parsedDueDate <= report.CreatedDate)
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
+                        Message = "The due date should be later than the time you are creating the report"
+                    };
+                }
+
                 var newWeek = await GetNewReportWeekName();
 
                 if (vm.ReportName != newWeek.Data)
@@ -111,6 +123,17 @@ namespace MilsatIMS.Services
                     };
                 }
 
+                bool liveReportExists = await _reportRepo.AnyAsync(x => x.Status == Status.Current);
+                if (liveReportExists)
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
+                        Message = "You can not create a new report when there is a current live one."
+                    };
+                }
+
                 Guid reportId = Guid.NewGuid();
                 bool guidExists = await _reportRepo.AnyAsync(x => x.ReportId == reportId);
                 while (guidExists)
@@ -119,8 +142,8 @@ namespace MilsatIMS.Services
                     guidExists = await _reportRepo.AnyAsync(x => x.ReportId == reportId);
                 }
 
-                var report = new Report { ReportId = reportId, ReportName = vm.ReportName, DueDate = parsedDueDate, SessionId = (Guid)_sessionId};
-
+                report.ReportId = reportId;
+                report.ReportName = vm.ReportName;
                 var nullSubmissions = new List<ReportSubmission>();
 
                 var interns = await _internRepo.GetAll()
@@ -214,66 +237,127 @@ namespace MilsatIMS.Services
             }
         }
 
-        //public async Task<GenericResponse<ReportResponseDTO>> GetReportById(Guid? sessionid, Guid id)
-        //{
-        //    try
-        //    {
-        //        var _sessionId = await CheckSession(sessionid);
-        //        if (_sessionId == null)
-        //            return new GenericResponse<ReportResponseDTO>
-        //            {
-        //                Successful = false,
-        //                ResponseCode = ResponseCode.NotFound,
-        //                Message = "There is no ongoing session or sessionId does not exist"
-        //            };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<ReportResponseDTO>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR,
-        //            Message = "Error occured while creating intern"
-        //        };
-        //    }
-        //}
-
-        //public async Task<GenericResponse<ReportResponseDTO>> UpdateReport(Guid? sessionid, UpdateReportVm vm)
-        //{
-        //    try
-        //    {
-        //        var _sessionId = await CheckSession(sessionid);
-        //        if (_sessionId == null)
-        //            return new GenericResponse<ReportResponseDTO>
-        //            {
-        //                Successful = false,
-        //                ResponseCode = ResponseCode.NotFound,
-        //                Message = "There is no ongoing session or sessionId does not exist"
-        //            };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<ReportResponseDTO>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR,
-        //            Message = "Error occured while creating intern"
-        //        };
-        //    }
-        //}
-
-        public Task<GenericResponse<ReportResponseDTO>> GetReportById(Guid? sessionid, Guid id)
+        public async Task<GenericResponse<ReportResponseDTO>> GetReportById(Guid? sessionid, Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
+
+                var report = await _reportRepo.GetAll().Where(x => x.ReportId == id && x.SessionId == _sessionId).FirstOrDefaultAsync();
+                if (report == null)
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "No report with this id was found"
+                    };
+                }
+
+                var reportdto = new ReportResponseDTO
+                {
+                    ReportId = report.ReportId,
+                    ReportName = report.ReportName,
+                    DueDate = report.DueDate.ToString("dd-MMMM-yy"),
+                };
+                return new GenericResponse<ReportResponseDTO>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Report has been successfully updated",
+                    Data = reportdto
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<ReportResponseDTO>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while creating intern"
+                };
+            }
         }
 
-        public Task<GenericResponse<ReportResponseDTO>> UpdateReport(Guid? sessionid, UpdateReportVm vm)
+        public async Task<GenericResponse<ReportResponseDTO>> UpdateReport(UpdateReportVm vm)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                var _sessionId = await CheckSession(null);
+                if (_sessionId == null)
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
 
+                var report = await _reportRepo.GetAll().Where(x => x.Status == Status.Current && x.SessionId == _sessionId).FirstOrDefaultAsync();
+                if (report == null)
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing live report to update"
+                    };
+                }
+
+                if(!DateTime.TryParseExact(vm.DueDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDueDate))
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
+                        Message = "DateTime Format is wrong"
+                    };
+                }
+
+                if (parsedDueDate <= report.CreatedDate)
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
+                        Message = "The due date should be later than the time you are creating the report"
+                    };
+                }
+
+                report.DueDate = parsedDueDate;
+                await _reportRepo.UpdateAsync(report);
+                var reportdto = new ReportResponseDTO
+                {
+                    ReportId = report.ReportId,
+                    ReportName = report.ReportName,
+                    DueDate = vm.DueDate,
+                };
+                return new GenericResponse<ReportResponseDTO>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Report has been successfully updated",
+                    Data = reportdto
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<ReportResponseDTO>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while creating intern"
+                };
+            }
+        }
     }
 }
 

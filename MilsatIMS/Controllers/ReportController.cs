@@ -43,6 +43,29 @@ namespace MilsatIMS.Controllers
         }
 
         /// <summary>
+        /// Update the latest report (admin)
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/reports/update
+        ///     {
+        ///         "dueDate": "2023-03-11 12:15:00"
+        ///     }
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPut("update")]
+        public async Task<ActionResult<GenericResponse<ReportResponseDTO>>> UpdateReport(UpdateReportVm vm)
+        {
+            var result = await _reportService.UpdateReport(vm);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Get all created reports for the session
         /// </summary>
         /// <param name="sessionid"></param>
@@ -73,6 +96,21 @@ namespace MilsatIMS.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Get a report by id
+        /// </summary>
+        /// <param name="sessionid"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<ActionResult<GenericResponse<ReportResponseDTO>>> GetReportById(Guid? sessionid, Guid id)
+        {
+            var result = await _reportService.GetReportById(sessionid, id);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
         /// <summary>
         /// Submit an intern's report
         /// </summary>
