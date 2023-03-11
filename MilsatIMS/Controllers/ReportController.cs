@@ -43,6 +43,22 @@ namespace MilsatIMS.Controllers
         }
 
         /// <summary>
+        /// Get all created reports for the session
+        /// </summary>
+        /// <param name="sessionid"></param>
+        /// <returns></returns>
+        [HttpGet("")]
+        public async Task<ActionResult<GenericResponse<List<ReportResponseDTO>>>> GetAllReports(Guid? sessionid)
+        {
+            var result = await _reportService.GetAllReports(sessionid);
+            if (!result.Successful)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Get suitable new week name
         /// </summary>
         /// <returns></returns>

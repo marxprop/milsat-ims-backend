@@ -69,8 +69,8 @@ namespace MilsatIMS.Services
             var newWeekName = $"Week {latestWeekNumber + 1}";
             return new GenericResponse<string>
             {
-                Successful = false,
-                ResponseCode = ResponseCode.NotFound,
+                Successful = true,
+                ResponseCode = ResponseCode.Successful,
                 Message = "Successfully provided the right new week name",
                 Data = newWeekName
             };
@@ -105,8 +105,8 @@ namespace MilsatIMS.Services
                 {
                     return new GenericResponse<ReportResponseDTO>
                     {
-                        Successful = true,
-                        ResponseCode = ResponseCode.Successful,
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
                         Message = "The report name is not right. Ensure you are setting the right next report."
                     };
                 }
@@ -142,50 +142,77 @@ namespace MilsatIMS.Services
                 }
                 await _reportRepo.AddAsync(report);
                 await _reportSubRepo.AddRangeAsync(nullSubmissions);
-
+                var reportdto = new ReportResponseDTO
+                {
+                    ReportId = report.ReportId,
+                    ReportName = report.ReportName,
+                    DueDate = vm.DueDate,
+                };
                 return new GenericResponse<ReportResponseDTO>
                 {
                     Successful = true,
                     ResponseCode = ResponseCode.Successful,
-                    Message = "Report has been successfully created"
+                    Message = "Report has been successfully created",
+                    Data = reportdto
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                _logger.LogError($"Error occured while creating Report. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
                 return new GenericResponse<ReportResponseDTO>
                 {
                     Successful = false,
                     ResponseCode = ResponseCode.EXCEPTION_ERROR,
-                    Message = "Error occured while creating intern"
+                    Message = "Error occured while creating report"
                 };
             }
         }
 
-        //public async Task<GenericResponse<List<ReportResponseDTO>>> GetAllReports(Guid? sessionid)
-        //{
-        //    try
-        //    {
-        //        var _sessionId = await CheckSession(sessionid);
-        //        if (_sessionId == null)
-        //            return new GenericResponse<List<ReportResponseDTO>>
-        //            {
-        //                Successful = false,
-        //                ResponseCode = ResponseCode.NotFound,
-        //                Message = "There is no ongoing session or sessionId does not exist"
-        //            };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Error occured while Creating Intern. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
-        //        return new GenericResponse<List<ReportResponseDTO>>
-        //        {
-        //            Successful = false,
-        //            ResponseCode = ResponseCode.EXCEPTION_ERROR,
-        //            Message = "Error occured while creating intern"
-        //        };
-        //    }
-        //}
+        public async Task<GenericResponse<List<ReportResponseDTO>>> GetAllReports(Guid? sessionid)
+        {
+            try
+            {
+                var _sessionId = await CheckSession(sessionid);
+                if (_sessionId == null)
+                    return new GenericResponse<List<ReportResponseDTO>>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.NotFound,
+                        Message = "There is no ongoing session or sessionId does not exist"
+                    };
+
+                var reports = await _reportRepo.GetAll().Where(x => x.SessionId == _sessionId).ToListAsync();
+
+                var reportdtos = new List<ReportResponseDTO>();
+                foreach (Report report in reports)
+                {
+                    var r = new ReportResponseDTO
+                    {
+                        ReportId = report.ReportId,
+                        ReportName = report.ReportName,
+                        DueDate = report.DueDate.ToString("dd-MMMM-yy")
+                    };
+                    reportdtos.Add(r);
+                }
+                return new GenericResponse<List<ReportResponseDTO>>
+                {
+                    Successful = true,
+                    ResponseCode = ResponseCode.Successful,
+                    Message = "Successfully fetched all created reports",
+                    Data = reportdtos
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error occured while getting all reports. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
+                return new GenericResponse<List<ReportResponseDTO>>
+                {
+                    Successful = false,
+                    ResponseCode = ResponseCode.EXCEPTION_ERROR,
+                    Message = "Error occured while fetching all reports"
+                };
+            }
+        }
 
         //public async Task<GenericResponse<ReportResponseDTO>> GetReportById(Guid? sessionid, Guid id)
         //{
@@ -238,11 +265,6 @@ namespace MilsatIMS.Services
         //}
 
         public Task<GenericResponse<ReportResponseDTO>> GetReportById(Guid? sessionid, Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<GenericResponse<List<ReportResponseDTO>>> GetAllReports(Guid? sessionid)
         {
             throw new NotImplementedException();
         }
