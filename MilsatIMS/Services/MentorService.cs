@@ -299,6 +299,7 @@ namespace MilsatIMS.Services
                     {
                         ims.MentorId = null;
                     }
+                    await _imsRepo.UpdateRangeAsync(IMS);
                 }
 
                 await _userRepo.UpdateAsync(mentor);
