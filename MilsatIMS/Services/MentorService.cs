@@ -299,9 +299,9 @@ namespace MilsatIMS.Services
                     {
                         ims.MentorId = null;
                     }
-
-                    await _userRepo.UpdateAsync(mentor);
                 }
+
+                await _userRepo.UpdateAsync(mentor);
 
                 var updatedMentor = new MentorResponseUpdateDTO
                 {
