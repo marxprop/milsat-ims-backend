@@ -89,6 +89,17 @@ namespace MilsatIMS.Services
                         Message = "There is no ongoing session or sessionId does not exist"
                     };
 
+                bool liveReportExists = await _reportRepo.AnyAsync(x => x.Status == Status.Current);
+                if (liveReportExists)
+                {
+                    return new GenericResponse<ReportResponseDTO>
+                    {
+                        Successful = false,
+                        ResponseCode = ResponseCode.INVALID_REQUEST,
+                        Message = "You can not create a new report when there is a current live one."
+                    };
+                }
+
                 if (!DateTime.TryParseExact(vm.DueDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDueDate))
                 {
                     return new GenericResponse<ReportResponseDTO>
@@ -99,7 +110,7 @@ namespace MilsatIMS.Services
                     };
                 }
 
-                var report = new Report { DueDate = parsedDueDate, SessionId = (Guid)_sessionId };
+                var report = new Report { DueDate = parsedDueDate, SessionId = (Guid)_sessionId, Status = Status.Current };
 
                 if (parsedDueDate <= report.CreatedDate)
                 {
@@ -123,16 +134,6 @@ namespace MilsatIMS.Services
                     };
                 }
 
-                bool liveReportExists = await _reportRepo.AnyAsync(x => x.Status == Status.Current);
-                if (liveReportExists)
-                {
-                    return new GenericResponse<ReportResponseDTO>
-                    {
-                        Successful = false,
-                        ResponseCode = ResponseCode.INVALID_REQUEST,
-                        Message = "You can not create a new report when there is a current live one."
-                    };
-                }
 
                 Guid reportId = Guid.NewGuid();
                 bool guidExists = await _reportRepo.AnyAsync(x => x.ReportId == reportId);
@@ -321,13 +322,13 @@ namespace MilsatIMS.Services
                     };
                 }
 
-                if (parsedDueDate <= report.CreatedDate)
+                if (parsedDueDate <= DateTime.UtcNow)
                 {
                     return new GenericResponse<ReportResponseDTO>
                     {
                         Successful = false,
                         ResponseCode = ResponseCode.INVALID_REQUEST,
-                        Message = "The due date should be later than the time you are creating the report"
+                        Message = "The due date should be later than the time you are updating the report"
                     };
                 }
 
