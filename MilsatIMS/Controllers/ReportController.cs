@@ -102,6 +102,7 @@ namespace MilsatIMS.Controllers
         /// <param name="sessionid"></param>
         /// <param name="id"></param>
         /// <returns></returns>
+        [HttpGet("{id}")]
         public async Task<ActionResult<GenericResponse<ReportResponseDTO>>> GetReportById(Guid? sessionid, Guid id)
         {
             var result = await _reportService.GetReportById(sessionid, id);
