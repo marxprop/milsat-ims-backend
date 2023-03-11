@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using MilsatIMS.Enums;
 using MilsatIMS.Interfaces;
 using MilsatIMS.Models;
@@ -172,6 +173,9 @@ namespace MilsatIMS.Services
                     ReportName = report.ReportName,
                     DueDate = vm.DueDate,
                 };
+
+                var jobId = BackgroundJob.Schedule(() => UpdateAllLiveReportStatus(report.ReportId), parsedDueDate);
+
                 return new GenericResponse<ReportResponseDTO>
                 {
                     Successful = true,
@@ -357,6 +361,33 @@ namespace MilsatIMS.Services
                     ResponseCode = ResponseCode.EXCEPTION_ERROR,
                     Message = "Error occured while creating intern"
                 };
+            }
+        }
+
+        public async Task UpdateAllLiveReportStatus(Guid reportId)
+        {
+            try
+            {
+                var report = await _reportRepo.GetAll().Where(x => x.ReportId == reportId && x.Status == Status.Current).FirstOrDefaultAsync();
+                if (report != null)
+                {
+                    report.Status = Status.Complete;
+
+                    List<ReportSubmission> submissions = await _reportSubRepo.GetAll().Where(x => x.ReportId == reportId).ToListAsync();
+                    foreach (var submission in submissions)
+                    {
+                        if (submission.Status == ReportStatus.Undone)
+                        {
+                            submission.Status = ReportStatus.Overdue;
+                        }
+                    }
+
+                    await _reportRepo.UpdateAsync(report);
+                    await _reportSubRepo.UpdateRangeAsync(submissions);
+                }
+            }
+            catch(Exception ex){
+                _logger.LogError($"Error occured while updating scheduled  report status for interns. Messg: {ex.Message} : StackTrace: {ex.StackTrace}");
             }
         }
     }

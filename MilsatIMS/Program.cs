@@ -11,6 +11,8 @@ using NLog;
 using NLog.Web;
 using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
+using Hangfire;
+using Hangfire.MySql;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -24,6 +26,22 @@ try
     //builder.Services.AddDbContext<MilsatIMSContext>(options =>
     //options.UseSqlServer(
     //    builder.Configuration.GetConnectionString("MilsatIMSContext") ?? throw new InvalidOperationException("Connection string 'MilsatIMSContext' not found.")));
+
+    builder.Services.AddHangfire(configuration =>
+        configuration
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseStorage(
+                new MySqlStorage(
+                    builder.Configuration.GetConnectionString("HangFireConnection"),
+                    new MySqlStorageOptions
+                    {
+                        TablesPrefix = "Hangfire"
+                    }
+                )));
+
+    builder.Services.AddHangfireServer();
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -91,6 +109,8 @@ try
     //    app.UseSwagger();
     //    app.UseSwaggerUI(); 
     //}
+    app.UseHangfireDashboard();
+    //app.UseHangfireServer();
     app.UseSwagger();
     app.UseSwaggerUI();
 
