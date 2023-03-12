@@ -11,8 +11,8 @@ using MilsatIMS.Data;
 namespace MilsatIMS.Migrations
 {
     [DbContext(typeof(MilsatIMSContext))]
-    [Migration("20230310154416_update_db2")]
-    partial class update_db2
+    [Migration("20230312093735_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -119,6 +119,119 @@ namespace MilsatIMS.Migrations
                     b.ToTable("Prompt");
                 });
 
+            modelBuilder.Entity("MilsatIMS.Models.Report", b =>
+                {
+                    b.Property<Guid>("ReportId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ReportName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("SessionId")
+                        .IsUnique();
+
+                    b.ToTable("Report");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.ReportFeedback", b =>
+                {
+                    b.Property<Guid>("ReportFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("InternRating")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ReportSubmissionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("SubmitDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ReportFeedbackId");
+
+                    b.HasIndex("MentorId");
+
+                    b.HasIndex("ReportSubmissionId")
+                        .IsUnique();
+
+                    b.ToTable("ReportFeedback");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.ReportSubmission", b =>
+                {
+                    b.Property<Guid>("ReportSubmissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("BlockerOrigin")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BlockerType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("InternId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("MentorRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OtherTeams")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("ReportId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SubmitDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Task")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TaskDetails")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Timeline")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReportSubmissionId");
+
+                    b.HasIndex("InternId");
+
+                    b.HasIndex("ReportId");
+
+                    b.ToTable("ReportSubmission");
+                });
+
             modelBuilder.Entity("MilsatIMS.Models.Session", b =>
                 {
                     b.Property<Guid>("SessionId")
@@ -212,13 +325,13 @@ namespace MilsatIMS.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("54677a17-2d92-475e-89e8-6f1f8f3da2d8"),
+                            UserId = new Guid("0f92e48e-a0f3-4c87-bc63-1363bc577337"),
                             Bio = "",
                             Email = "admin@milsat.com",
                             FullName = "Admin",
                             Gender = 0,
-                            PasswordHash = new byte[] { 96, 119, 122, 158, 72, 26, 254, 236, 59, 148, 50, 102, 66, 117, 137, 156, 206, 147, 99, 156, 148, 109, 175, 57, 120, 245, 217, 0, 150, 141, 94, 4, 191, 222, 60, 166, 200, 18, 199, 203, 126, 167, 200, 84, 8, 237, 38, 88, 137, 158, 60, 156, 198, 46, 223, 217, 214, 124, 86, 34, 102, 80, 23, 81 },
-                            PasswordSalt = new byte[] { 156, 129, 169, 48, 215, 54, 135, 50, 245, 45, 80, 216, 38, 15, 14, 241, 146, 97, 184, 123, 222, 178, 137, 192, 208, 107, 180, 222, 95, 129, 101, 63, 72, 62, 231, 20, 251, 115, 40, 107, 148, 243, 122, 200, 193, 52, 95, 171, 125, 78, 134, 62, 147, 211, 85, 80, 23, 32, 34, 219, 143, 32, 45, 241, 150, 173, 73, 197, 132, 62, 203, 21, 191, 101, 223, 5, 212, 246, 20, 111, 113, 124, 90, 69, 39, 128, 21, 237, 98, 161, 225, 142, 149, 81, 53, 9, 193, 174, 54, 16, 49, 221, 99, 18, 180, 68, 136, 21, 175, 249, 58, 8, 13, 122, 150, 227, 150, 157, 245, 245, 234, 230, 231, 141, 198, 185, 23, 29 },
+                            PasswordHash = new byte[] { 44, 68, 20, 35, 203, 43, 96, 143, 225, 123, 251, 190, 135, 137, 249, 180, 245, 17, 183, 32, 59, 76, 225, 11, 202, 85, 110, 246, 149, 6, 116, 159, 255, 61, 204, 123, 67, 30, 174, 177, 170, 220, 82, 102, 199, 212, 222, 179, 58, 201, 94, 182, 255, 201, 37, 237, 107, 74, 210, 51, 68, 3, 130, 99 },
+                            PasswordSalt = new byte[] { 1, 179, 98, 171, 242, 232, 32, 45, 111, 48, 204, 114, 71, 102, 195, 23, 203, 128, 52, 225, 193, 245, 47, 225, 102, 169, 81, 167, 46, 159, 146, 199, 208, 182, 188, 139, 204, 107, 1, 231, 57, 42, 190, 66, 127, 45, 158, 55, 229, 236, 219, 56, 197, 147, 134, 108, 131, 68, 43, 244, 0, 94, 172, 38, 95, 0, 136, 229, 214, 136, 21, 75, 130, 102, 250, 199, 229, 204, 243, 68, 216, 239, 254, 185, 166, 249, 6, 110, 140, 75, 188, 89, 235, 3, 183, 92, 87, 24, 99, 169, 238, 102, 139, 0, 53, 190, 198, 210, 234, 3, 175, 143, 63, 90, 52, 252, 100, 69, 171, 111, 145, 37, 53, 198, 199, 18, 84, 194 },
                             PasswordTokenExpires = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PhoneNumber = "datasolutions",
                             ProfilePicture = "",
@@ -277,19 +390,85 @@ namespace MilsatIMS.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MilsatIMS.Models.Report", b =>
+                {
+                    b.HasOne("MilsatIMS.Models.Session", "Session")
+                        .WithOne("Report")
+                        .HasForeignKey("MilsatIMS.Models.Report", "SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.ReportFeedback", b =>
+                {
+                    b.HasOne("MilsatIMS.Models.Mentor", "Mentor")
+                        .WithMany("ReportFeedbacks")
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MilsatIMS.Models.ReportSubmission", "ReportSubmission")
+                        .WithOne("ReportFeedback")
+                        .HasForeignKey("MilsatIMS.Models.ReportFeedback", "ReportSubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mentor");
+
+                    b.Navigation("ReportSubmission");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.ReportSubmission", b =>
+                {
+                    b.HasOne("MilsatIMS.Models.Intern", "Intern")
+                        .WithMany("ReportSubmissions")
+                        .HasForeignKey("InternId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MilsatIMS.Models.Report", "Report")
+                        .WithMany("Submissions")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Intern");
+
+                    b.Navigation("Report");
+                });
+
             modelBuilder.Entity("MilsatIMS.Models.Intern", b =>
                 {
                     b.Navigation("IMS");
+
+                    b.Navigation("ReportSubmissions");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Mentor", b =>
                 {
                     b.Navigation("IMS");
+
+                    b.Navigation("ReportFeedbacks");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.Report", b =>
+                {
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("MilsatIMS.Models.ReportSubmission", b =>
+                {
+                    b.Navigation("ReportFeedback");
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.Session", b =>
                 {
                     b.Navigation("IMS");
+
+                    b.Navigation("Report")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MilsatIMS.Models.User", b =>

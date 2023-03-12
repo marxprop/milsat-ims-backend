@@ -80,6 +80,30 @@ namespace MilsatIMS.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Report",
+                columns: table => new
+                {
+                    ReportId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ReportName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    SessionId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Report", x => x.ReportId);
+                    table.ForeignKey(
+                        name: "FK_Report_Session_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Session",
+                        principalColumn: "SessionId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Intern",
                 columns: table => new
                 {
@@ -126,6 +150,44 @@ namespace MilsatIMS.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ReportSubmission",
+                columns: table => new
+                {
+                    ReportSubmissionId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ReportId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    InternId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    BlockerType = table.Column<int>(type: "int", nullable: false),
+                    BlockerOrigin = table.Column<int>(type: "int", nullable: false),
+                    Task = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TaskDetails = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Timeline = table.Column<int>(type: "int", nullable: false),
+                    OtherTeams = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    SubmitDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    MentorRating = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportSubmission", x => x.ReportSubmissionId);
+                    table.ForeignKey(
+                        name: "FK_ReportSubmission_Intern_InternId",
+                        column: x => x.InternId,
+                        principalTable: "Intern",
+                        principalColumn: "InternId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReportSubmission_Report_ReportId",
+                        column: x => x.ReportId,
+                        principalTable: "Report",
+                        principalColumn: "ReportId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "IMS",
                 columns: table => new
                 {
@@ -157,10 +219,40 @@ namespace MilsatIMS.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "ReportFeedback",
+                columns: table => new
+                {
+                    ReportFeedbackId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Comment = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    InternRating = table.Column<int>(type: "int", nullable: false),
+                    SubmitDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ReportSubmissionId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    MentorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportFeedback", x => x.ReportFeedbackId);
+                    table.ForeignKey(
+                        name: "FK_ReportFeedback_Mentor_MentorId",
+                        column: x => x.MentorId,
+                        principalTable: "Mentor",
+                        principalColumn: "MentorId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReportFeedback_ReportSubmission_ReportSubmissionId",
+                        column: x => x.ReportSubmissionId,
+                        principalTable: "ReportSubmission",
+                        principalColumn: "ReportSubmissionId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "Bio", "Email", "FullName", "Gender", "PasswordHash", "PasswordResetToken", "PasswordSalt", "PasswordTokenExpires", "PhoneNumber", "ProfilePicture", "RefreshToken", "Role", "Team", "TokenCreated", "TokenExpires", "isDeleted" },
-                values: new object[] { new Guid("32ea9d03-c649-4609-8ba6-64b2e4c00559"), "", "admin@milsat.com", "Admin", 0, new byte[] { 99, 123, 27, 25, 87, 146, 93, 172, 186, 36, 89, 186, 192, 103, 53, 248, 191, 235, 5, 112, 249, 164, 81, 190, 18, 143, 167, 192, 197, 4, 158, 242, 180, 146, 128, 145, 79, 30, 71, 249, 181, 86, 221, 67, 204, 221, 98, 4, 59, 42, 200, 169, 131, 151, 143, 189, 158, 35, 14, 89, 88, 40, 131, 196 }, null, new byte[] { 122, 159, 135, 172, 73, 44, 164, 116, 204, 230, 237, 114, 210, 71, 87, 128, 18, 231, 0, 57, 157, 179, 246, 224, 152, 198, 91, 30, 155, 229, 165, 57, 191, 241, 225, 182, 222, 106, 255, 90, 158, 27, 57, 231, 116, 26, 97, 241, 61, 135, 182, 158, 125, 30, 213, 63, 9, 123, 255, 153, 221, 244, 247, 49, 236, 245, 51, 32, 31, 141, 219, 238, 112, 25, 234, 98, 128, 91, 120, 47, 174, 242, 48, 54, 247, 174, 73, 227, 231, 21, 223, 112, 222, 24, 231, 220, 57, 52, 5, 7, 219, 231, 173, 31, 24, 27, 137, 189, 236, 75, 254, 242, 100, 231, 55, 22, 107, 232, 84, 250, 178, 28, 240, 128, 236, 238, 99, 106 }, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "datasolutions", "", null, 0, 5, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false });
+                values: new object[] { new Guid("0f92e48e-a0f3-4c87-bc63-1363bc577337"), "", "admin@milsat.com", "Admin", 0, new byte[] { 44, 68, 20, 35, 203, 43, 96, 143, 225, 123, 251, 190, 135, 137, 249, 180, 245, 17, 183, 32, 59, 76, 225, 11, 202, 85, 110, 246, 149, 6, 116, 159, 255, 61, 204, 123, 67, 30, 174, 177, 170, 220, 82, 102, 199, 212, 222, 179, 58, 201, 94, 182, 255, 201, 37, 237, 107, 74, 210, 51, 68, 3, 130, 99 }, null, new byte[] { 1, 179, 98, 171, 242, 232, 32, 45, 111, 48, 204, 114, 71, 102, 195, 23, 203, 128, 52, 225, 193, 245, 47, 225, 102, 169, 81, 167, 46, 159, 146, 199, 208, 182, 188, 139, 204, 107, 1, 231, 57, 42, 190, 66, 127, 45, 158, 55, 229, 236, 219, 56, 197, 147, 134, 108, 131, 68, 43, 244, 0, 94, 172, 38, 95, 0, 136, 229, 214, 136, 21, 75, 130, 102, 250, 199, 229, 204, 243, 68, 216, 239, 254, 185, 166, 249, 6, 110, 140, 75, 188, 89, 235, 3, 183, 92, 87, 24, 99, 169, 238, 102, 139, 0, 53, 190, 198, 210, 234, 3, 175, 143, 63, 90, 52, 252, 100, 69, 171, 111, 145, 37, 53, 198, 199, 18, 84, 194 }, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "datasolutions", "", null, 0, 5, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false });
 
             migrationBuilder.CreateIndex(
                 name: "IX_IMS_InternId",
@@ -188,6 +280,33 @@ namespace MilsatIMS.Migrations
                 table: "Mentor",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Report_SessionId",
+                table: "Report",
+                column: "SessionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReportFeedback_MentorId",
+                table: "ReportFeedback",
+                column: "MentorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReportFeedback_ReportSubmissionId",
+                table: "ReportFeedback",
+                column: "ReportSubmissionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReportSubmission_InternId",
+                table: "ReportSubmission",
+                column: "InternId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReportSubmission_ReportId",
+                table: "ReportSubmission",
+                column: "ReportId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -199,16 +318,25 @@ namespace MilsatIMS.Migrations
                 name: "Prompt");
 
             migrationBuilder.DropTable(
-                name: "Intern");
+                name: "ReportFeedback");
 
             migrationBuilder.DropTable(
                 name: "Mentor");
 
             migrationBuilder.DropTable(
-                name: "Session");
+                name: "ReportSubmission");
+
+            migrationBuilder.DropTable(
+                name: "Intern");
+
+            migrationBuilder.DropTable(
+                name: "Report");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Session");
         }
     }
 }
