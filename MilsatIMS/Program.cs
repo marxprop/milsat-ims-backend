@@ -27,21 +27,21 @@ try
     //options.UseSqlServer(
     //    builder.Configuration.GetConnectionString("MilsatIMSContext") ?? throw new InvalidOperationException("Connection string 'MilsatIMSContext' not found.")));
 
-    builder.Services.AddHangfire(configuration =>
-        configuration
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UseStorage(
-                new MySqlStorage(
-                    builder.Configuration.GetConnectionString("HangFireConnection"),
-                    new MySqlStorageOptions
-                    {
-                        TablesPrefix = "Hangfire"
-                    }
-                )));
+    // builder.Services.AddHangfire(configuration =>
+    //     configuration
+    //         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    //         .UseSimpleAssemblyNameTypeSerializer()
+    //         .UseRecommendedSerializerSettings()
+    //         .UseStorage(
+    //             new MySqlStorage(
+    //                 builder.Configuration.GetConnectionString("HangFireConnection"),
+    //                 new MySqlStorageOptions
+    //                 {
+    //                     TablesPrefix = "Hangfire"
+    //                 }
+    //             )));
 
-    builder.Services.AddHangfireServer();
+    // builder.Services.AddHangfireServer();
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -109,7 +109,7 @@ try
     //    app.UseSwagger();
     //    app.UseSwaggerUI(); 
     //}
-    app.UseHangfireDashboard();
+    // app.UseHangfireDashboard();
     //app.UseHangfireServer();
     app.UseSwagger();
     app.UseSwaggerUI();
